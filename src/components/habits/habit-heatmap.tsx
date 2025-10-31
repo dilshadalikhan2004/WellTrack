@@ -2,7 +2,7 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { HabitLog } from '@/lib/types';
-import { eachDayOfInterval, format, startOfMonth, endOfMonth, getDay, isSameDay } from 'date-fns';
+import { eachDayOfInterval, format, startOfMonth, endOfMonth, getDay, isSameDay, subMonths } from 'date-fns';
 
 const getMonthData = (date: Date) => {
   const start = startOfMonth(date);
@@ -15,9 +15,7 @@ const getMonthData = (date: Date) => {
 };
 
 const months = Array.from({ length: 4 }, (_, i) => {
-    const d = new Date();
-    d.setMonth(d.getMonth() - i);
-    return d;
+    return subMonths(new Date(), i);
 }).reverse();
 
 export function HabitHeatmap({ habitLogs }: { habitLogs: HabitLog[] }) {
