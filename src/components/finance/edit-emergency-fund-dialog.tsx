@@ -18,8 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 type EditEmergencyFundDialogProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSave: (goal: number, currentAmount: number) => void;
-  initialGoal?: number;
+  onSave: (currentAmount: number) => void;
   initialCurrentAmount?: number;
 };
 
@@ -27,36 +26,33 @@ export function EditEmergencyFundDialog({
     isOpen, 
     onOpenChange, 
     onSave,
-    initialGoal = 1000,
     initialCurrentAmount = 0
 }: EditEmergencyFundDialogProps) {
   const { toast } = useToast();
-  const [goal, setGoal] = useState<number | ''>(initialGoal);
   const [currentAmount, setCurrentAmount] = useState<number | ''>(initialCurrentAmount);
 
   useEffect(() => {
     if(isOpen) {
-      setGoal(initialGoal);
       setCurrentAmount(initialCurrentAmount);
     }
-  }, [isOpen, initialGoal, initialCurrentAmount]);
+  }, [isOpen, initialCurrentAmount]);
   
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (goal === '' || currentAmount === '') {
+    if (currentAmount === '') {
       toast({
         variant: 'destructive',
         title: 'Missing fields',
-        description: 'Please fill out all fields.',
+        description: 'Please provide a balance amount.',
       });
       return;
     }
 
-    onSave(Number(goal), Number(currentAmount));
+    onSave(Number(currentAmount));
     
     toast({
-      title: 'Emergency Fund Updated!',
-      description: 'Your savings goal has been saved.',
+      title: 'Balance Updated!',
+      description: 'Your balance has been saved.',
     });
 
     onOpenChange(false);
@@ -66,34 +62,21 @@ export function EditEmergencyFundDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit Emergency Fund</DialogTitle>
+          <DialogTitle>Edit Balance</DialogTitle>
           <DialogDescription>
-            Set your savings goal and update your current progress.
+            Update your current balance.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="space-y-1">
-              <Label htmlFor="goal">Savings Goal</Label>
-              <Input
-                id="goal"
-                type="number"
-                value={goal}
-                onChange={(e) => setGoal(e.target.value === '' ? '' : e.target.valueAsNumber)}
-                placeholder="e.g., 1000"
-                required
-                min="0"
-                step="any"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="currentAmount">Current Amount Saved</Label>
+              <Label htmlFor="currentAmount">Current Balance (₹)</Label>
               <Input
                 id="currentAmount"
                 type="number"
                 value={currentAmount}
                 onChange={(e) => setCurrentAmount(e.target.value === '' ? '' : e.target.valueAsNumber)}
-                placeholder="e.g., 250"
+                placeholder="e.g., 250.75"
                 required
                 min="0"
                 step="any"
