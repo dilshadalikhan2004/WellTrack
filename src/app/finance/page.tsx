@@ -31,8 +31,8 @@ export default function FinancePage() {
   };
   
   const { totalIncome, totalExpenses, balance } = useMemo(() => {
-    const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-    const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const income = (transactions || []).filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const expenses = (transactions || []).filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
     return {
         totalIncome: income,
         totalExpenses: expenses,
@@ -41,7 +41,10 @@ export default function FinancePage() {
   }, [transactions]);
 
   const sortedTransactions = useMemo(() => {
-    return [...transactions].sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
+    return [...(transactions || [])].sort((a, b) => {
+        if (!a.timestamp || !b.timestamp) return 0;
+        return b.timestamp.toMillis() - a.timestamp.toMillis();
+    });
   }, [transactions]);
 
 
