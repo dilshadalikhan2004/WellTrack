@@ -66,29 +66,28 @@ export default function ProfilePage() {
     setIsUpdating(true);
     let newPhotoURL = user.photoURL;
 
-    if (avatarFile) {
-      setIsUploading(true);
-      const storage = getStorage();
-      const storageRef = ref(storage, `avatars/${user.uid}/${avatarFile.name}`);
-      try {
-        const snapshot = await uploadBytes(storageRef, avatarFile);
-        newPhotoURL = await getDownloadURL(snapshot.ref);
-        setPhotoURL(newPhotoURL || '');
-      } catch (error) {
-        console.error('Error uploading avatar:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Upload Failed',
-          description: 'Could not upload your new avatar.',
-        });
-        setIsUploading(false);
-        setIsUpdating(false);
-        return;
-      }
-      setIsUploading(false);
-    }
-
     try {
+      if (avatarFile) {
+        setIsUploading(true);
+        const storage = getStorage();
+        const storageRef = ref(storage, `avatars/${user.uid}/${avatarFile.name}`);
+        try {
+          const snapshot = await uploadBytes(storageRef, avatarFile);
+          newPhotoURL = await getDownloadURL(snapshot.ref);
+          setPhotoURL(newPhotoURL || '');
+        } catch (error) {
+          console.error('Error uploading avatar:', error);
+          toast({
+            variant: 'destructive',
+            title: 'Upload Failed',
+            description: 'Could not upload your new avatar.',
+          });
+          // Do not return early, let finally block run
+        } finally {
+            setIsUploading(false);
+        }
+      }
+
       await updateProfile(user, {
         displayName: displayName,
         photoURL: newPhotoURL,
@@ -108,6 +107,8 @@ export default function ProfilePage() {
         title: 'Profile Updated',
         description: 'Your profile has been successfully updated.',
       });
+      setAvatarFile(null);
+      setAvatarPreview(null);
     } catch (error) {
       console.error(error);
       toast({
@@ -117,8 +118,7 @@ export default function ProfilePage() {
       });
     } finally {
       setIsUpdating(false);
-      setAvatarFile(null);
-      setAvatarPreview(null);
+      setIsUploading(false);
     }
   };
 
