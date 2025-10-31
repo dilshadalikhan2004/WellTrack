@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Resource } from '@/lib/types';
 import { Clock, Info, Video, Mic, BookOpen, Users, Brain, Book } from 'lucide-react';
 import { Button } from '../ui/button';
+import Link from 'next/link';
 
 type ResourceCardProps = {
   resource: Resource;
@@ -58,8 +59,10 @@ export function ResourceCard({ resource }: ResourceCardProps) {
                 <span>{resource.duration} min</span>
             </div>
         )}
-        <Button size="sm" variant="secondary" className="ml-auto">
-            View
+        <Button size="sm" variant="secondary" className="ml-auto" asChild>
+            <Link href={resource.contentUrl || '#'} target="_blank" rel="noopener noreferrer">
+                View
+            </Link>
         </Button>
       </CardFooter>
     </Card>

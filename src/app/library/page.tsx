@@ -16,6 +16,7 @@ const mockResources: Resource[] = [
         type: 'infographic',
         category: 'Anxiety',
         imageUrl: 'https://picsum.photos/seed/infographic1/600/400',
+        contentUrl: 'https://www.google.com/search?q=understanding+anxiety+infographic',
         duration: 5,
     },
     {
@@ -25,6 +26,7 @@ const mockResources: Resource[] = [
         type: 'infographic',
         category: 'CBT',
         imageUrl: 'https://picsum.photos/seed/infographic2/600/400',
+        contentUrl: 'https://www.google.com/search?q=cbt+triangle+infographic',
         duration: 3,
     },
     {
@@ -34,6 +36,7 @@ const mockResources: Resource[] = [
         type: 'infographic',
         category: 'Anxiety',
         imageUrl: 'https://picsum.photos/seed/infographic3/600/400',
+        contentUrl: 'https://www.google.com/search?q=grounding+techniques+infographic',
         duration: 4,
     },
      {
@@ -43,6 +46,7 @@ const mockResources: Resource[] = [
         type: 'infographic',
         category: 'Stress',
         imageUrl: 'https://picsum.photos/seed/infographic4/600/400',
+        contentUrl: 'https://www.google.com/search?q=box+breathing+infographic',
         duration: 2,
     },
     {
@@ -52,6 +56,7 @@ const mockResources: Resource[] = [
         type: 'video',
         category: 'Mindfulness',
         imageUrl: 'https://picsum.photos/seed/video1/600/400',
+        contentUrl: 'https://www.youtube.com/watch?v=w6T02g5hnT4',
         duration: 10,
     },
     {
@@ -61,6 +66,7 @@ const mockResources: Resource[] = [
         type: 'video',
         category: 'Well-being',
         imageUrl: 'https://picsum.photos/seed/video2/600/400',
+        contentUrl: 'https://www.youtube.com/watch?v=O9zA2iI6C0A',
         duration: 8,
     },
     {
@@ -70,6 +76,7 @@ const mockResources: Resource[] = [
         type: 'podcast',
         category: 'Positive Psychology',
         imageUrl: 'https://picsum.photos/seed/podcast1/600/400',
+        contentUrl: 'https://www.pushkin.fm/podcasts/the-happiness-lab-with-dr-laurie-santos',
         duration: 35,
     },
     {
@@ -79,6 +86,7 @@ const mockResources: Resource[] = [
         type: 'podcast',
         category: 'CBT',
         imageUrl: 'https://picsum.photos/seed/podcast2/600/400',
+        contentUrl: 'https://feelinggood.com/podcast/',
         duration: 45,
     },
     {
@@ -88,6 +96,7 @@ const mockResources: Resource[] = [
         type: 'course',
         category: 'Positive Psychology',
         imageUrl: 'https://picsum.photos/seed/course1/600/400',
+        contentUrl: 'https://www.coursera.org/learn/positive-psychology',
         duration: 60,
     },
     {
@@ -97,6 +106,7 @@ const mockResources: Resource[] = [
         type: 'talk',
         category: 'Relationships',
         imageUrl: 'https://picsum.photos/seed/talk1/600/400',
+        contentUrl: 'https://www.ted.com/talks/brene_brown_the_power_of_vulnerability',
         duration: 20,
     },
     {
@@ -106,6 +116,7 @@ const mockResources: Resource[] = [
         type: 'book',
         category: 'Productivity',
         imageUrl: 'https://picsum.photos/seed/book1/600/400',
+        contentUrl: 'https://www.google.com/search?q=atomic+habits+summary',
         duration: 15,
     },
      {
@@ -115,6 +126,7 @@ const mockResources: Resource[] = [
         type: 'research',
         category: 'Well-being',
         imageUrl: 'https://picsum.photos/seed/research1/600/400',
+        contentUrl: 'https://www.google.com/search?q=benefits+of+nature+on+mental+health+research',
         duration: 12,
     },
 ];
@@ -162,7 +174,7 @@ export default function LibraryPage() {
                                 </div>
                             </TabsContent>
                             <TabsContent value="podcasts">
-                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                <div className="grid gap-4 md-grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                     {mockResources.filter(r => r.type === 'podcast').map((resource) => (
                                         <ResourceCard key={resource.id} resource={resource} />
                                     ))}
