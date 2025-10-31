@@ -25,10 +25,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
@@ -120,24 +118,12 @@ function UserMenu() {
   if (!user) {
     return null;
   }
-  
-  const userAvatar = PlaceHolderImages.find((p) => p.id === 'user-avatar');
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="w-full h-auto py-2 justify-start">
           <div className="flex items-center w-full gap-2">
-            <Avatar className="w-8 h-8">
-              <AvatarImage
-                src={user.photoURL || userAvatar?.imageUrl}
-                alt={user.displayName || 'User'}
-                data-ai-hint={userAvatar?.imageHint}
-              />
-              <AvatarFallback>
-                {user.email ? user.email.charAt(0).toUpperCase() : 'U'}
-              </AvatarFallback>
-            </Avatar>
             <div className="text-left">
               <p className="text-sm font-medium leading-none">{user.displayName || user.email}</p>
               <p className="text-xs leading-none text-muted-foreground">
