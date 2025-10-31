@@ -69,13 +69,14 @@ export type AnalyzeJournalSentimentOutput = {
 export type JournalEntry = {
     id: string;
     content: string;
-    createdAt: Timestamp; // Firestore timestamp
+    createdAt: Timestamp | any; // Firestore timestamp
     sentiment?: AnalyzeJournalSentimentOutput | null;
     userProfileId: string;
 };
 
 // Represents the data structure for creating a new entry in Firestore
 export type JournalEntryData = {
+    id?: string; // id is optional on write
     content: string;
     createdAt: any; // Can be serverTimestamp()
     sentiment?: AnalyzeJournalSentimentOutput | null;

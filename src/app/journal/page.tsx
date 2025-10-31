@@ -40,7 +40,7 @@ export default function JournalPage() {
         return;
     }
 
-    const newEntry: JournalEntryData = {
+    const newEntry: Omit<JournalEntry, 'id'> = {
         content: entry,
         // Firebase will convert this to a Timestamp
         createdAt: serverTimestamp(),
@@ -95,11 +95,13 @@ export default function JournalPage() {
     }
   };
   
-  const sortedEntries = (savedEntries || []).slice().sort((a, b) => {
-    const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : new Date();
-    const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : new Date();
-    return dateB.getTime() - dateA.getTime();
-  });
+  const sortedEntries = (savedEntries || [])
+    .filter(e => e.createdAt) // Ensure createdAt is not null
+    .sort((a, b) => {
+        const dateA = a.createdAt as Timestamp;
+        const dateB = b.createdAt as Timestamp;
+        return dateB.toMillis() - dateA.toMillis();
+    });
 
 
   return (
