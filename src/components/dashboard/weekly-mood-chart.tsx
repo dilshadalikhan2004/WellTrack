@@ -32,12 +32,13 @@ export function WeeklyMoodChart({ className }: { className?: string }) {
         return collection(firestore, `users/${user.uid}/mood_logs`);
     }, [user, firestore]);
 
-    const { data: moodLogs = [], isLoading } = useCollection<MoodLogData>(moodLogsCollectionRef);
+    const { data: moodLogs, isLoading } = useCollection<MoodLogData>(moodLogsCollectionRef);
 
     const last7DaysData = useMemo(() => {
+        const logs = moodLogs || [];
         return Array.from({ length: 7 }, (_, i) => {
             const date = subDays(new Date(), i);
-            const logsOnDate = moodLogs.filter(
+            const logsOnDate = logs.filter(
                 (log) => log.timestamp && isSameDay(log.timestamp.toDate(), date)
             );
             const avgRating = logsOnDate.length > 0
