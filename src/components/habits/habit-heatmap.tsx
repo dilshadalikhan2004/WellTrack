@@ -18,7 +18,11 @@ const months = Array.from({ length: 4 }, (_, i) => {
     return subMonths(new Date(), i);
 }).reverse();
 
-export function HabitHeatmap({ habitLogs }: { habitLogs: HabitLog[] }) {
+export function HabitHeatmap({ habitLogs }: { habitLogs: HabitLog[] | null }) {
+  if (!habitLogs) {
+    return null; // or a loading skeleton
+  }
+  
   const data = habitLogs.map(log => ({
     date: log.timestamp.toDate(),
     count: 1 // Represent each log as 1 completion
