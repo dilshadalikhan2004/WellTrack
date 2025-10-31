@@ -14,6 +14,7 @@ import {
   Flame,
   NotebookPen,
   Landmark,
+  BookHeart,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ const navItems = [
   { href: '/goals', label: 'Goals', icon: Target },
   { href: '/journal', label: 'Journal', icon: NotebookPen },
   { href: '/finance', label: 'Finance', icon: Landmark },
+  { href: '/library', label: 'Library', icon: BookHeart },
   { href: '/awards', label: 'Awards', icon: Trophy },
   { href: '/insights', label: 'Insights', icon: BrainCircuit },
 ];

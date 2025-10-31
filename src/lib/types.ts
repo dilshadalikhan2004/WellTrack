@@ -138,3 +138,14 @@ export type GenerateFinancialTipsOutput = {
   tips: string[];
   summary: string;
 };
+
+export type Resource = {
+    id: string;
+    title: string;
+    description: string;
+    type: 'infographic' | 'video' | 'article' | 'podcast';
+    category: string;
+    imageUrl: string;
+    contentUrl?: string;
+    duration?: number; // in minutes
+}

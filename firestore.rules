@@ -18,10 +18,11 @@
  * - /users/{userId}/notifications/{notificationId}: Notifications for the user.
  * - /community_forums/{communityForumId}: Community forum data.
  * - /forum_posts/{forumPostId}: Forum posts.
+ * - /library/{resourceId}: Publicly accessible mental health resources.
  *
  * Key Security Decisions:
  * - User data is strictly private and only accessible to the owning user.
- * - Community forum data is publicly readable.
+ * - Community forum and library data is publicly readable.
  * - Listing of user documents in `/users/{userId}` is allowed.
  * - No schema validation is enforced in this prototyping phase.
  *
@@ -86,6 +87,18 @@ service cloud.firestore {
       allow get, list: if true;
       allow create: if isSignedIn() && request.resource.data.userProfileId == request.auth.uid;
       allow update, delete: if isSignedIn() && resource.data.userProfileId == request.auth.uid && resource != null;
+    }
+
+    /**
+     * @description Rule for /library/{resourceId} collection.
+     * @path /library/{resourceId}
+     * @allow (get, list) Any authenticated user can read library resources.
+     * @deny (create, update, delete) Write access is restricted.
+     * @principle Allows public read access to the mental health library for signed-in users.
+     */
+    match /library/{resourceId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false; // Only admins should write.
     }
   }
 }
