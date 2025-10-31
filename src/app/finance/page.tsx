@@ -53,14 +53,14 @@ export default function FinancePage() {
   };
   
   const { totalExpenses } = useMemo(() => {
-    const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const expenses = (transactions || []).filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
     return {
         totalExpenses: expenses,
     };
   }, [transactions]);
 
   const sortedTransactions = useMemo(() => {
-    return [...transactions].sort((a, b) => {
+    return [...(transactions || [])].sort((a, b) => {
         if (!a.timestamp || !b.timestamp) return 0;
         const timeA = a.timestamp.toMillis ? a.timestamp.toMillis() : new Date(a.timestamp).getTime();
         const timeB = b.timestamp.toMillis ? b.timestamp.toMillis() : new Date(b.timestamp).getTime();
