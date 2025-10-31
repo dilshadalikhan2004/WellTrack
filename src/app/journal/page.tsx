@@ -28,7 +28,7 @@ export default function JournalPage() {
     return collection(firestore, `users/${user.uid}/journal_entries`);
   }, [firestore, user]);
 
-  const { data: savedEntries = [], isLoading: entriesLoading } = useCollection<JournalEntryData>(entriesCollectionRef);
+  const { data: savedEntries, isLoading: entriesLoading } = useCollection<JournalEntryData>(entriesCollectionRef);
 
   const handleSave = () => {
     if (!entry.trim() || !entriesCollectionRef) {
@@ -95,7 +95,7 @@ export default function JournalPage() {
     }
   };
   
-  const sortedEntries = [...savedEntries].sort((a, b) => {
+  const sortedEntries = (savedEntries || []).slice().sort((a, b) => {
     const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : new Date();
     const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : new Date();
     return dateB.getTime() - dateA.getTime();
