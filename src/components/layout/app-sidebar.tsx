@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   Flame,
+  NotebookPen,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -35,14 +36,13 @@ const navItems = [
   { href: '/mood', label: 'Mood', icon: Smile },
   { href: '/habits', label: 'Habits', icon: Flame },
   { href: '/goals', label: 'Goals', icon: Target },
+  { href: '/journal', label: 'Journal', icon: NotebookPen },
   { href: '/awards', label: 'Awards', icon: Trophy },
   { href: '/insights', label: 'Insights', icon: BrainCircuit },
 ];
 
 function NavContent() {
   const pathname = usePathname();
-
-  const isRootPath = (href: string) => href === '/' && pathname !== '/';
 
   return (
     <div className="flex flex-col h-full">
@@ -53,14 +53,11 @@ function NavContent() {
       </div>
       <nav className="flex-1 px-2 py-4 space-y-1">
         {navItems.map((item) => (
-          <Link key={item.href} href={item.href}>
+          <Link key={item.href} href={item.href} passHref>
             <Button
-              variant={
-                pathname === item.href && !isRootPath(item.href)
-                  ? 'secondary'
-                  : 'ghost'
-              }
+              variant={pathname === item.href ? 'secondary' : 'ghost'}
               className="justify-start w-full"
+              as="a"
             >
               <item.icon className="w-4 h-4 mr-2" />
               {item.label}
@@ -79,7 +76,7 @@ export function AppSidebar() {
   return (
     <>
       {/* Mobile Sidebar */}
-      <div className="md:hidden sticky top-0 z-20 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm">
+      <div className="sticky top-0 z-20 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:hidden">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="shrink-0">
@@ -112,7 +109,7 @@ function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="w-full justify-start h-auto py-2">
+        <Button variant="ghost" className="w-full h-auto py-2 justify-start">
           <div className="flex items-center w-full gap-2">
             <Avatar className="w-8 h-8">
               <AvatarImage

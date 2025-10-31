@@ -21,20 +21,41 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import type { Goal } from '@/lib/types';
 import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 
-export function NewGoalDialog() {
+type NewGoal = Omit<Goal, 'id' | 'progress'>;
+
+export function NewGoalDialog({ onAddGoal }: { onAddGoal: (goal: NewGoal) => void }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState<Goal['category'] | ''>('');
+  const [description, setDescription] = useState('');
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Logic to save the new goal would go here
+    if (!title || !category) {
+        toast({
+            variant: 'destructive',
+            title: 'Missing fields',
+            description: 'Please provide a title and category.',
+        });
+        return;
+    }
+
+    onAddGoal({ title, category, description });
+    
     toast({
       title: 'Goal Created!',
       description: 'Your new goal has been added to your list.',
     });
+
+    // Reset form
+    setTitle('');
+    setCategory('');
+    setDescription('');
     setOpen(false);
   };
 
@@ -59,21 +80,32 @@ export function NewGoalDialog() {
               <Label htmlFor="title" className="text-right">
                 Title
               </Label>
-              <Input id="title" placeholder="e.g., Read 12 books" className="col-span-3" required />
+              <Input 
+                id="title" 
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Read 12 books" 
+                className="col-span-3" 
+                required 
+              />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="category" className="text-right">
                 Category
               </Label>
-              <Select required>
+              <Select 
+                required 
+                value={category}
+                onValueChange={(value) => setCategory(value as Goal['category'])}
+              >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="academic">Academic</SelectItem>
-                  <SelectItem value="fitness">Fitness</SelectItem>
-                  <SelectItem value="mental-health">Mental Health</SelectItem>
-                  <SelectItem value="personal">Personal</SelectItem>
+                  <SelectItem value="Academic">Academic</SelectItem>
+                  <SelectItem value="Fitness">Fitness</SelectItem>
+                  <SelectItem value="Mental Health">Mental Health</SelectItem>
+                  <SelectItem value="Personal">Personal</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -83,6 +115,8 @@ export function NewGoalDialog() {
               </Label>
               <Textarea
                 id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe your goal and why it's important..."
                 className="col-span-3"
               />

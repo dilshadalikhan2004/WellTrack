@@ -26,7 +26,7 @@ export type PersonalizedInsightsInput = z.infer<typeof PersonalizedInsightsInput
 
 // Define the output schema for the flow
 const PersonalizedInsightsOutputSchema = z.object({
-  insights: z.string().describe('Personalized insights and recommendations for the user.'),
+  insights: z.string().describe('Personalized insights and recommendations for the user, formatted as an HTML unordered list.'),
 });
 
 export type PersonalizedInsightsOutput = z.infer<typeof PersonalizedInsightsOutputSchema>;
@@ -47,14 +47,16 @@ Mood Data: {{{moodData}}}
 Habit Data: {{{habitData}}}
 Sleep Data: {{{sleepData}}}
 Exercise Data: {{{exerciseData}}}
-Water Intake Data: {{{waterIntakeData}}}
+Water IntakeData: {{{waterIntakeData}}}
 Current Goals: {{{goalData}}}
 
 Based on this data, provide actionable insights and recommendations, focusing on:
 - Identifying patterns and correlations between mood, habits, sleep, and other factors.
 - Suggesting specific changes to habits or routines to improve mood and well-being.
 - Recommending relevant mental wellness tools or techniques.
-- Helping the user achieve their goals by providing tailored advice and support.`,
+- Helping the user achieve their goals by providing tailored advice and support.
+
+Format the entire response as an HTML unordered list (<ul><li>...</li></ul>). Each point should be a separate list item.`,
 });
 
 // Define the flow

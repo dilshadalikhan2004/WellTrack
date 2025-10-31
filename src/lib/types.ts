@@ -1,3 +1,5 @@
+import { type LucideIcon } from 'lucide-react';
+
 export type User = {
   id: string;
   name: string;
@@ -13,8 +15,8 @@ export type User = {
 export type Habit = {
   id: string;
   name: string;
-  category: 'Physical' | 'Mental' | 'Academic' | 'Social' | 'Self-Care';
-  icon: React.ElementType;
+  category: 'Physical' | 'Mental' | 'Academic';
+  icon: LucideIcon;
   goal: number;
   unit: string;
   completed: boolean;
@@ -36,6 +38,7 @@ export type Goal = {
   id: string;
   title: string;
   category: 'Academic' | 'Fitness' | 'Mental Health' | 'Personal';
+  description?: string;
   progress: number;
 };
 
