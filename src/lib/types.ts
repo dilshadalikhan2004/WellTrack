@@ -1,4 +1,5 @@
 
+
 import { type LucideIcon } from 'lucide-react';
 import { type Timestamp } from 'firebase/firestore';
 
@@ -116,7 +117,7 @@ export type FinancialTransaction = {
     category: string;
     amount: number;
     description: string;
-    timestamp: Timestamp;
+    timestamp: Timestamp | any;
 }
 
 export type FinancialAnxietyLog = {
@@ -132,5 +133,3 @@ export type EmergencyFund = {
     goal: number;
     currentAmount: number;
 }
-
-    

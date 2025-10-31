@@ -9,7 +9,7 @@ import { NewTransactionDialog } from '@/components/finance/new-transaction-dialo
 import { TransactionList } from '@/components/finance/transaction-list';
 import { FinancialAnxietyMonitor } from '@/components/finance/financial-anxiety-monitor';
 import { useCollection, useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, serverTimestamp } from 'firebase/firestore';
+import { collection, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
 import type { FinancialTransaction } from '@/lib/types';
 import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useMemo } from 'react';
@@ -28,8 +28,25 @@ export default function FinancePage() {
   const { data: transactions, isLoading } = useCollection<FinancialTransaction>(transactionsCollectionRef);
 
   const handleAddTransaction = (data: Omit<FinancialTransaction, 'id' | 'userProfileId' | 'timestamp'>) => {
-    if (!transactionsCollectionRef || !user) return;
+    if (!transactionsCollectionRef || !user || !firestore) return;
+    
+    // 1. Add the transaction document
     addDocumentNonBlocking(transactionsCollectionRef, { ...data, userProfileId: user.uid, timestamp: serverTimestamp() });
+
+    // 2. Update the balance
+    const emergencyFundDocRef = doc(firestore, `users/${user.uid}/emergency_fund`, user.uid);
+    const amount = data.type === 'income' ? data.amount : -data.amount;
+    
+    // Use updateDoc with increment for atomic updates
+    updateDoc(emergencyFundDocRef, {
+      currentAmount: increment(amount)
+    }).catch(err => {
+        // This might happen if the document doesn't exist yet, we can choose to set it.
+        if (err.code === 'not-found') {
+            const { setDocumentNonBlocking } = require('@/firebase/non-blocking-updates');
+            setDocumentNonBlocking(emergencyFundDocRef, { currentAmount: amount, userProfileId: user.uid }, { merge: true });
+        }
+    });
   };
   
   const totalExpenses = useMemo(() => {
