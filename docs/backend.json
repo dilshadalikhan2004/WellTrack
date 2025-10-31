@@ -490,7 +490,8 @@
         "category": { "type": "string", "description": "Category of the transaction (e.g., Food, Transport, Salary)." },
         "amount": { "type": "number", "description": "The transaction amount." },
         "description": { "type": "string", "description": "A brief description of the transaction." },
-        "timestamp": { "type": "string", "format": "date-time", "description": "Timestamp of the transaction." }
+        "timestamp": { "type": "string", "format": "date-time", "description": "Timestamp of the transaction." },
+        "isArchived": { "type": "boolean", "description": "Flag to hide transaction from main view after reset." }
       },
       "required": ["id", "userProfileId", "type", "category", "amount", "timestamp"]
     },
@@ -804,5 +805,3 @@
     "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, adhering to the principles of Authorization Independence and Structural Segregation. User-specific data is stored under the `/users/{userId}` path, ensuring that only the authenticated user can access their data. Each user has their own collections for habits, mood logs, journal entries, routines, goals, stress levels, and notifications. Financial data is also stored under the user's private path. \n\nCommunity forum data, which requires different access controls, is stored separately under `/community_forums` and `/forum_posts`, allowing for public read access while restricting write access to authorized users.\n\n**Authorization Independence:** Achieved by structuring data to avoid `get()` calls in security rules. User-owned data is directly nested under the `/users/{userId}` path.  For the community forum, the `ForumPost` includes the `userProfileId` to check ownership without needing to retrieve the user's profile. This prevents hierarchical authorization dependencies. \n\n**QAPs (Rules are not Filters):** Secure `list` operations are supported via structural segregation. The `/users/{userId}` collections allow listing only data owned by a specific user.  Public data (forums) are separated from private user data."
   }
 }
-
-    

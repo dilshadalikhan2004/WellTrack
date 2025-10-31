@@ -54,7 +54,7 @@ export function NewTransactionDialog({ onAddTransaction }: { onAddTransaction: (
       return;
     }
 
-    onAddTransaction({ type, description, amount: Number(amount), category });
+    onAddTransaction({ type, description, amount: Number(amount), category, isArchived: false });
     
     toast({
       title: 'Transaction Added!',

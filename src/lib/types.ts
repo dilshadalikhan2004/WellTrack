@@ -118,6 +118,7 @@ export type FinancialTransaction = {
     amount: number;
     description: string;
     timestamp: Timestamp | any;
+    isArchived?: boolean;
 }
 
 export type FinancialAnxietyLog = {
