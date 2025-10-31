@@ -51,9 +51,10 @@ export function EditBalanceDialog({ children, balanceDocRef, currentBalance = 0 
     setIsSaving(true);
     try {
         await setDoc(balanceDocRef, {
+            id: user.uid,
+            userProfileId: user.uid,
             currentAmount: Number(amount),
             goal: 0, // Not used, but part of the data model
-            userProfileId: user.uid,
         }, { merge: true });
 
         toast({

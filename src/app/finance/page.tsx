@@ -26,38 +26,39 @@ export default function FinancePage() {
 
   const balanceDocRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return doc(firestore, `users/${user.uid}/balance`, user.uid);
+    return doc(firestore, `users/${user.uid}/emergency_fund`, user.uid);
   }, [firestore, user]);
 
-  const { data: transactions, isLoading: transactionsLoading } = useCollection<FinancialTransaction>(transactionsCollectionRef);
+  const { data: transactions = [], isLoading: transactionsLoading } = useCollection<FinancialTransaction>(transactionsCollectionRef);
   const { data: balanceData, isLoading: balanceLoading } = useDoc<EmergencyFund>(balanceDocRef);
   
 
   const handleAddTransaction = (data: Omit<FinancialTransaction, 'id' | 'userProfileId' | 'timestamp'>) => {
-    if (!transactionsCollectionRef || !user || !firestore) return;
+    if (!transactionsCollectionRef || !user || !firestore || !balanceDocRef) return;
     addDocumentNonBlocking(transactionsCollectionRef, { ...data, userProfileId: user.uid, timestamp: serverTimestamp() });
     
     // Update balance
-    if (balanceDocRef) {
-      const amount = data.type === 'income' ? data.amount : -data.amount;
-      updateDoc(balanceDocRef, { currentAmount: increment(amount) }).catch(() => {
-        // If the doc doesn't exist, create it.
-        updateDoc(balanceDocRef, { currentAmount: amount, goal: 0, userProfileId: user.uid });
+    const amount = data.type === 'income' ? data.amount : -data.amount;
+    updateDoc(balanceDocRef, { currentAmount: increment(amount) }).catch(async () => {
+      // If the doc doesn't exist, create it with the current transaction amount.
+      await setDoc(balanceDocRef, { 
+        currentAmount: amount, 
+        goal: 0, 
+        userProfileId: user.uid,
+        id: user.uid,
       });
-    }
+    });
   };
   
   const { totalExpenses } = useMemo(() => {
-    const safeTransactions = transactions || [];
-    const expenses = safeTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const expenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
     return {
         totalExpenses: expenses,
     };
   }, [transactions]);
 
   const sortedTransactions = useMemo(() => {
-    const safeTransactions = transactions || [];
-    return [...safeTransactions].sort((a, b) => {
+    return [...transactions].sort((a, b) => {
         if (!a.timestamp || !b.timestamp) return 0;
         const timeA = a.timestamp.toMillis ? a.timestamp.toMillis() : new Date(a.timestamp).getTime();
         const timeB = b.timestamp.toMillis ? b.timestamp.toMillis() : new Date(b.timestamp).getTime();
@@ -76,7 +77,7 @@ export default function FinancePage() {
             Financial Wellness
         </h1>
         <div className="flex items-center gap-2">
-          <DownloadReportButton transactions={transactions || []} />
+          <DownloadReportButton transactions={transactions} />
           <NewTransactionDialog onAddTransaction={handleAddTransaction} />
         </div>
       </header>
