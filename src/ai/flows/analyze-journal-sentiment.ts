@@ -40,7 +40,7 @@ export type AnalyzeJournalSentimentOutput = z.infer<
 export async function analyzeJournalSentiment(
   input: AnalyzeJournalSentimentInput
 ): Promise<AnalyzeJournalSentimentOutput> {
-  return analyzeJournalSentimentFlow(input);
+  return await analyzeJournalSentimentFlow(input);
 }
 
 const prompt = ai.definePrompt({

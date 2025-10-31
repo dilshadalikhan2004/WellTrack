@@ -5,20 +5,50 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Sparkles, NotebookPen } from 'lucide-react';
+import { Loader2, Save, Sparkles, NotebookPen, Trash2 } from 'lucide-react';
 import { analyzeJournalSentiment, type AnalyzeJournalSentimentOutput } from '@/ai/flows/analyze-journal-sentiment';
+import type { JournalEntry } from '@/lib/types';
+import { format } from 'date-fns';
 
 export default function JournalPage() {
   const [entry, setEntry] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sentiment, setSentiment] = useState<AnalyzeJournalSentimentOutput | null>(null);
+  const [savedEntries, setSavedEntries] = useState<JournalEntry[]>([]);
   const { toast } = useToast();
 
   const handleSave = () => {
-    // In a real app, you'd save this to a database.
+    if (!entry.trim()) {
+        toast({
+            variant: 'destructive',
+            title: 'Empty Entry',
+            description: 'Cannot save an empty entry.',
+        });
+        return;
+    }
+
+    const newEntry: JournalEntry = {
+        id: `entry-${Date.now()}`,
+        content: entry,
+        createdAt: new Date(),
+        sentiment: sentiment,
+    };
+
+    setSavedEntries(prevEntries => [newEntry, ...prevEntries]);
+    setEntry('');
+    setSentiment(null);
+
     toast({
       title: 'Entry Saved!',
       description: 'Your journal entry has been saved successfully.',
+    });
+  };
+
+  const handleDelete = (id: string) => {
+    setSavedEntries(prevEntries => prevEntries.filter(e => e.id !== id));
+    toast({
+        title: 'Entry Deleted',
+        description: 'Your journal entry has been removed.',
     });
   };
 
@@ -107,6 +137,39 @@ export default function JournalPage() {
                 <p className="text-lg font-bold">{sentiment.sentiment}</p>
                 <p className="text-muted-foreground">{sentiment.summary}</p>
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {savedEntries.length > 0 && (
+          <Card>
+            <CardHeader>
+                <CardTitle>Past Entries</CardTitle>
+                <CardDescription>Review your previous journal entries.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                {savedEntries.map((savedEntry) => (
+                    <div key={savedEntry.id} className="p-4 border rounded-lg bg-background">
+                        <div className="flex items-center justify-between mb-2">
+                           <p className="text-sm font-semibold text-muted-foreground">
+                             {format(savedEntry.createdAt, 'MMMM d, yyyy - h:mm a')}
+                           </p>
+                           <Button variant="ghost" size="icon" className="w-6 h-6" onClick={() => handleDelete(savedEntry.id)}>
+                               <Trash2 className="w-4 h-4 text-muted-foreground" />
+                           </Button>
+                        </div>
+                        <p className="whitespace-pre-wrap">{savedEntry.content}</p>
+                        {savedEntry.sentiment && (
+                             <div className="flex items-start gap-3 p-3 mt-4 text-center border-2 border-dashed rounded-lg bg-accent/50">
+                                <div className="text-3xl">{savedEntry.sentiment.emoji}</div>
+                                <div className='text-left'>
+                                    <p className="font-bold">{savedEntry.sentiment.sentiment}</p>
+                                    <p className="text-sm text-muted-foreground">{savedEntry.sentiment.summary}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                ))}
             </CardContent>
           </Card>
         )}

@@ -43,9 +43,22 @@ export type Goal = {
 };
 
 export type Badge = {
-  id: string;
+  id:string;
   name: string;
   description: string;
   icon: React.ElementType;
   isEarned: boolean;
+};
+
+export type AnalyzeJournalSentimentOutput = {
+  sentiment: 'Positive' | 'Negative' | 'Neutral' | 'Mixed';
+  emoji: string;
+  summary: string;
+};
+
+export type JournalEntry = {
+    id: string;
+    content: string;
+    createdAt: Date;
+    sentiment?: AnalyzeJournalSentimentOutput | null;
 };
