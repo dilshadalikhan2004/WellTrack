@@ -4,9 +4,11 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import type { FinancialTransaction } from "@/lib/types";
 import { format } from "date-fns";
-import { TrendingUp, TrendingDown, Utensils, Bus, Home, Film, ShoppingBag, Gift, Briefcase, HandCoins, Wallet } from "lucide-react";
+import { TrendingUp, TrendingDown, Utensils, Bus, Home, Film, ShoppingBag, Gift, Briefcase, HandCoins, Wallet, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type Timestamp } from "firebase/firestore";
+import { Button } from "../ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 
 const categoryIcons: Record<string, React.ElementType> = {
     Food: Utensils,
@@ -14,6 +16,7 @@ const categoryIcons: Record<string, React.ElementType> = {
     Housing: Home,
     Entertainment: Film,
     Shopping: ShoppingBag,
+    'Pocket Money': HandCoins,
     Salary: Briefcase,
     Gift: Gift,
     'Side Hustle': HandCoins,
@@ -23,10 +26,11 @@ const categoryIcons: Record<string, React.ElementType> = {
 type TransactionListProps = {
     transactions: FinancialTransaction[];
     isLoading: boolean;
+    onDeleteTransaction: (transaction: FinancialTransaction) => void;
     className?: string;
 }
 
-export function TransactionList({ transactions, isLoading, className }: TransactionListProps) {
+export function TransactionList({ transactions, isLoading, onDeleteTransaction, className }: TransactionListProps) {
 
     return (
         <Card className={cn(className)}>
@@ -67,6 +71,27 @@ export function TransactionList({ transactions, isLoading, className }: Transact
                                             {format((t.timestamp as Timestamp).toDate(), 'MMM d, yyyy')}
                                         </p>}
                                     </div>
+                                     <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="w-8 h-8 shrink-0">
+                                                <Trash2 className="w-4 h-4 text-muted-foreground" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Delete Transaction?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete this transaction and update your balance.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => onDeleteTransaction(t)}>
+                                                Delete
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </div>
                             )
                         })}

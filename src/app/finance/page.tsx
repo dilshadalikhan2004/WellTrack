@@ -3,12 +3,12 @@
 
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bot, Landmark, TrendingDown, Wallet, RotateCcw } from 'lucide-react';
+import { Landmark, Wallet, RotateCcw } from 'lucide-react';
 import { NewTransactionDialog } from '@/components/finance/new-transaction-dialog';
 import { TransactionList } from '@/components/finance/transaction-list';
 import { FinancialAnxietyMonitor } from '@/components/finance/financial-anxiety-monitor';
 import { useCollection, useUser, useFirestore, useMemoFirebase, useDoc } from '@/firebase';
-import { collection, serverTimestamp, doc, updateDoc, increment, setDoc, writeBatch, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, serverTimestamp, doc, updateDoc, increment, setDoc, writeBatch, query, where, getDocs, Timestamp, deleteDoc } from 'firebase/firestore';
 import type { EmergencyFund, FinancialTransaction } from '@/lib/types';
 import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { EditBalanceDialog } from '@/components/finance/edit-balance-dialog';
@@ -17,6 +17,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { startOfMonth, endOfMonth } from 'date-fns';
+import { FinancialTipsGenerator } from '@/components/finance/financial-tips-generator';
 
 
 export default function FinancePage() {
@@ -27,7 +28,6 @@ export default function FinancePage() {
 
   const transactionsCollectionRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    // Query to get only non-archived transactions
     return query(collection(firestore, `users/${user.uid}/financial_transactions`), where('isArchived', '!=', true));
   }, [firestore, user]);
 
@@ -42,16 +42,13 @@ export default function FinancePage() {
 
   const handleAddTransaction = async (data: Omit<FinancialTransaction, 'id' | 'userProfileId' | 'timestamp'>) => {
     if (!transactionsCollectionRef || !user || !firestore || !balanceDocRef) return;
-    // Since the collection ref is a query, we need the base collection for adding docs
     const baseCollectionRef = collection(firestore, `users/${user.uid}/financial_transactions`);
     addDocumentNonBlocking(baseCollectionRef, { ...data, userProfileId: user.uid, timestamp: serverTimestamp(), isArchived: false });
     
-    // Update balance
     const amount = data.type === 'income' ? data.amount : -data.amount;
     try {
         await updateDoc(balanceDocRef, { currentAmount: increment(amount) });
     } catch (e) {
-        // If the doc doesn't exist, create it.
         await setDoc(balanceDocRef, { 
             currentAmount: amount, 
             goal: 0, 
@@ -60,6 +57,21 @@ export default function FinancePage() {
         }, { merge: true });
     }
   };
+
+  const handleDeleteTransaction = async (transaction: FinancialTransaction) => {
+    if (!firestore || !user || !balanceDocRef) return;
+
+    const docRef = doc(firestore, `users/${user.uid}/financial_transactions`, transaction.id);
+    await deleteDoc(docRef);
+
+    const amountAdjustment = transaction.type === 'income' ? -transaction.amount : transaction.amount;
+    await updateDoc(balanceDocRef, { currentAmount: increment(amountAdjustment) });
+
+    toast({
+        title: 'Transaction Deleted',
+        description: 'The transaction has been removed.',
+    });
+  }
   
   const handleResetExpenses = async () => {
     if (!firestore || !user) return;
@@ -70,7 +82,6 @@ export default function FinancePage() {
       const monthStart = startOfMonth(now);
       const monthEnd = endOfMonth(now);
       
-      // We need a new query here to find documents to archive, including already archived ones to avoid re-querying them.
       const baseCollectionRef = collection(firestore, `users/${user.uid}/financial_transactions`);
       const q = query(
         baseCollectionRef,
@@ -83,6 +94,7 @@ export default function FinancePage() {
       
       if (querySnapshot.empty) {
         toast({ title: "Nothing to reset", description: "No expenses found for the current month." });
+        setIsResetting(false);
         return;
       }
       
@@ -91,15 +103,15 @@ export default function FinancePage() {
       
       querySnapshot.forEach(document => {
         const data = document.data() as FinancialTransaction;
-        // Only act on non-archived documents to avoid double-counting balance adjustments
         if (!data.isArchived) {
           batch.update(document.ref, { isArchived: true });
           expensesToResetAmount += data.amount;
         }
       });
 
-      // Add the reset amount back to the balance
-      batch.update(balanceDocRef, { currentAmount: increment(expensesToResetAmount) });
+      if (balanceDocRef) {
+        batch.update(balanceDocRef, { currentAmount: increment(expensesToResetAmount) });
+      }
       
       await batch.commit();
 
@@ -201,20 +213,10 @@ export default function FinancePage() {
         </div>
         
         <div className="grid gap-6 lg:grid-cols-3">
-            <TransactionList transactions={sortedTransactions} isLoading={isLoading} className="lg:col-span-2" />
+            <TransactionList transactions={sortedTransactions} isLoading={isLoading} onDeleteTransaction={handleDeleteTransaction} className="lg:col-span-2" />
             
             <div className="space-y-6 lg:col-span-1">
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                           <Bot className="w-5 h-5 text-primary"/> AI Financial Tips
-                        </CardTitle>
-                        <CardDescription>Get AI-powered recommendations based on your spending.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="mt-2 text-xs text-center text-muted-foreground">This feature is coming soon! It will analyze your spending and provide personalized tips to help you save money and reduce financial stress.</p>
-                    </CardContent>
-                </Card>
+                 <FinancialTipsGenerator transactions={transactions} />
             </div>
         </div>
       </main>
