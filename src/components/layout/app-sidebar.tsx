@@ -12,7 +12,6 @@ import {
   LogOut,
   Flame,
   NotebookPen,
-  Bot,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -41,7 +40,6 @@ const navItems = [
   { href: '/habits', label: 'Habits', icon: Flame },
   { href: '/goals', label: 'Goals', icon: Target },
   { href: '/journal', label: 'Journal', icon: NotebookPen },
-  { href: '/counselor', label: 'AI Counselor', icon: Bot },
   { href: '/awards', label: 'Awards', icon: Trophy },
   { href: '/insights', label: 'Insights', icon: BrainCircuit },
 ];
