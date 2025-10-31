@@ -110,13 +110,13 @@ export function NewTransactionDialog({ onAddTransaction }: { onAddTransaction: (
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                    <Label htmlFor="amount">Amount</Label>
+                    <Label htmlFor="amount">Amount (₹)</Label>
                     <Input
                         id="amount"
                         type="number"
                         value={amount}
                         onChange={(e) => setAmount(e.target.valueAsNumber)}
-                        placeholder="e.g., 5.50"
+                        placeholder="e.g., 500.50"
                         required
                         min="0.01"
                         step="0.01"
@@ -140,6 +140,7 @@ export function NewTransactionDialog({ onAddTransaction }: { onAddTransaction: (
                                 </>
                             ) : (
                                 <>
+                                    <SelectItem value="Pocket Money">Pocket Money</SelectItem>
                                     <SelectItem value="Salary">Salary</SelectItem>
                                     <SelectItem value="Gift">Gift</SelectItem>
                                     <SelectItem value="Side Hustle">Side Hustle</SelectItem>
@@ -159,5 +160,3 @@ export function NewTransactionDialog({ onAddTransaction }: { onAddTransaction: (
     </Dialog>
   );
 }
-
-    

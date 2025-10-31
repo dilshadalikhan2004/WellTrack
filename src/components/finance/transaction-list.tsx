@@ -62,7 +62,7 @@ export function TransactionList({ transactions, isLoading, className }: Transact
                                         <p className="text-sm text-muted-foreground">{t.category}</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className={cn("font-semibold", color)}>{sign}${t.amount.toFixed(2)}</p>
+                                        <p className={cn("font-semibold", color)}>{sign}₹{t.amount.toFixed(2)}</p>
                                         {t.timestamp && <p className="text-xs text-muted-foreground">
                                             {format((t.timestamp as Timestamp).toDate(), 'MMM d, yyyy')}
                                         </p>}
