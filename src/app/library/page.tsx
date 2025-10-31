@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookHeart, Info, Video, Mic, BookOpen, Users, Brain } from 'lucide-react';
+import { BookHeart, Info, Video, Mic, BookOpen, Users, Brain, Book } from 'lucide-react';
 import { ResourceCard } from '@/components/library/resource-card';
 import type { Resource } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
