@@ -18,7 +18,6 @@ export type Habit = {
   name: string;
   category: 'Physical' | 'Mental' | 'Academic';
   goal: string;
-  frequency: string;
   userProfileId: string;
 };
 

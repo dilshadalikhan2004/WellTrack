@@ -90,10 +90,6 @@ export function TodaysHabits({ className }: { className?: string }) {
                 key={habit.id}
                 className="flex items-center p-3 transition-colors rounded-lg bg-muted/50 hover:bg-muted"
                 >
-                {/* <habit.icon
-                    className="w-6 h-6 mr-4 text-primary"
-                    aria-hidden="true"
-                /> */}
                 <div className="flex-1">
                     <p
                     className={cn(
@@ -118,7 +114,7 @@ export function TodaysHabits({ className }: { className?: string }) {
                 />
                 </div>
             ))}
-             {(!habits || habits.length === 0) && <p className='text-sm text-center text-muted-foreground'>No habits defined yet.</p>}
+             {(!habits || habits.length === 0) && <p className='text-sm text-center text-muted-foreground'>No habits defined yet. Go to the Habits page to add one!</p>}
             </div>
         )}
       </CardContent>
