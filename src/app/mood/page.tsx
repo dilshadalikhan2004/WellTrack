@@ -5,13 +5,13 @@ import { MoodHeatmap } from '@/components/mood/mood-heatmap';
 import { MoodTrendChart } from '@/components/mood/mood-trend-chart';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, type Timestamp } from 'firebase/firestore';
+import { collection, type Timestamp }m 'firebase/firestore';
 
 export type MoodLogData = {
   id: string;
   mood: string;
   rating: number;
-  timestamp: Timestamp;
+  timestamp: Timestamp | null;
   userProfileId: string;
 };
 
@@ -26,10 +26,12 @@ export default function MoodPage() {
 
   const { data: moodLogs, isLoading } = useCollection<MoodLogData>(moodLogsCollectionRef);
 
-  const processedMoodLogs = (moodLogs || []).map(log => ({
-    ...log,
-    date: log.timestamp.toDate()
-  }));
+  const processedMoodLogs = (moodLogs || [])
+    .filter(log => log.timestamp) // Filter out logs where timestamp is null
+    .map(log => ({
+      ...log,
+      date: log.timestamp!.toDate()
+    }));
 
   return (
     <div className="flex flex-col min-h-screen">
