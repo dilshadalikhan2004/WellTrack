@@ -1,3 +1,4 @@
+
 import { type LucideIcon } from 'lucide-react';
 import { type Timestamp } from 'firebase/firestore';
 
@@ -107,3 +108,29 @@ export type Gamification = {
     level: number;
     badges: string[]; // Array of badge IDs
 }
+
+export type FinancialTransaction = {
+    id: string;
+    userProfileId: string;
+    type: 'income' | 'expense';
+    category: string;
+    amount: number;
+    description: string;
+    timestamp: Timestamp;
+}
+
+export type FinancialAnxietyLog = {
+    id: string;
+    userProfileId: string;
+    level: number; // 1 (low) to 5 (high)
+    timestamp: Timestamp;
+}
+
+export type EmergencyFund = {
+    id: string; // Should be user's UID
+    userProfileId: string;
+    goal: number;
+    currentAmount: number;
+}
+
+    

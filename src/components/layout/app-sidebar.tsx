@@ -13,6 +13,7 @@ import {
   LogOut,
   Flame,
   NotebookPen,
+  Landmark,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ const navItems = [
   { href: '/habits', label: 'Habits', icon: Flame },
   { href: '/goals', label: 'Goals', icon: Target },
   { href: '/journal', label: 'Journal', icon: NotebookPen },
+  { href: '/finance', label: 'Finance', icon: Landmark },
   { href: '/awards', label: 'Awards', icon: Trophy },
   { href: '/insights', label: 'Insights', icon: BrainCircuit },
 ];
@@ -123,3 +125,5 @@ export function AppSidebar() {
     </header>
   );
 }
+
+    
