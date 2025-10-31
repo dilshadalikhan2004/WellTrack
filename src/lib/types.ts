@@ -1,5 +1,4 @@
 
-
 import { type LucideIcon } from 'lucide-react';
 import { type Timestamp } from 'firebase/firestore';
 
@@ -134,3 +133,8 @@ export type EmergencyFund = {
     goal: number;
     currentAmount: number;
 }
+
+export type GenerateFinancialTipsOutput = {
+  tips: string[];
+  summary: string;
+};

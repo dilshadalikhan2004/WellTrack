@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Bot, Lightbulb, Loader2, Sparkles } from 'lucide-react';
-import { generateFinancialTips, type GenerateFinancialTipsOutput } from '@/ai/flows/generate-financial-tips';
-import type { FinancialTransaction } from '@/lib/types';
+import { generateFinancialTips } from '@/ai/flows/generate-financial-tips';
+import type { FinancialTransaction, GenerateFinancialTipsOutput } from '@/lib/types';
 import { Timestamp } from 'firebase/firestore';
 
 type FinancialTipsGeneratorProps = {

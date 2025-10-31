@@ -19,19 +19,19 @@ const TransactionSchema = z.object({
   timestamp: z.string(),
 });
 
-export const GenerateFinancialTipsInputSchema = z.object({
+const GenerateFinancialTipsInputSchema = z.object({
   transactions: z.array(TransactionSchema).describe('A list of recent financial transactions.'),
   balance: z.number().describe('The current account balance.'),
 });
-export type GenerateFinancialTipsInput = z.infer<typeof GenerateFinancialTipsInputSchema>;
+type GenerateFinancialTipsInput = z.infer<typeof GenerateFinancialTipsInputSchema>;
 
-export const GenerateFinancialTipsOutputSchema = z.object({
+const GenerateFinancialTipsOutputSchema = z.object({
   tips: z
     .array(z.string())
     .describe('A list of 2-3 actionable, personalized financial tips for a student in India.'),
   summary: z.string().describe('A brief, encouraging summary of the user\'s recent financial activity.'),
 });
-export type GenerateFinancialTipsOutput = z.infer<typeof GenerateFinancialTipsOutputSchema>;
+type GenerateFinancialTipsOutput = z.infer<typeof GenerateFinancialTipsOutputSchema>;
 
 export async function generateFinancialTips(
   input: GenerateFinancialTipsInput
