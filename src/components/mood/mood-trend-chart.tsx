@@ -1,23 +1,10 @@
+
 'use client';
 
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { ChartTooltipContent, ChartContainer, type ChartConfig } from '@/components/ui/chart';
-import { mockMoodLogs } from '@/lib/data';
 import { format, subDays, isSameDay } from 'date-fns';
-
-const last30DaysData = Array.from({ length: 30 }, (_, i) => {
-  const date = subDays(new Date(), i);
-  const logsOnDate = mockMoodLogs.filter((log) => isSameDay(log.date, date));
-  const avgRating = logsOnDate.length > 0
-    ? logsOnDate.reduce((sum, log) => sum + log.rating, 0) / logsOnDate.length
-    : null;
-
-  return {
-    date: format(date, 'MMM d'),
-    rating: avgRating,
-  };
-}).reverse();
-
+import type { MoodLog } from '@/lib/types';
 
 const chartConfig = {
   rating: {
@@ -26,8 +13,21 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+export function MoodTrendChart({ data }: { data: MoodLog[] }) {
 
-export function MoodTrendChart() {
+  const last30DaysData = Array.from({ length: 30 }, (_, i) => {
+    const date = subDays(new Date(), i);
+    const logsOnDate = data.filter((log) => isSameDay(log.date, date));
+    const avgRating = logsOnDate.length > 0
+      ? logsOnDate.reduce((sum, log) => sum + log.rating, 0) / logsOnDate.length
+      : null;
+
+    return {
+      date: format(date, 'MMM d'),
+      rating: avgRating,
+    };
+  }).reverse();
+
   return (
     <div className="w-full h-[400px]">
       <ChartContainer config={chartConfig} className="w-full h-full">
