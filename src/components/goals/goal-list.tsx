@@ -1,11 +1,11 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Book, HeartPulse, Brain, User, Trash2 } from "lucide-react";
+import { Book, HeartPulse, Brain, User } from "lucide-react";
 import type { Goal } from "@/lib/types";
-import { Button } from "../ui/button";
 import { EditGoalDialog } from "./edit-goal-dialog";
-import { Slider } from "../ui/slider";
+import { Checkbox } from "../ui/checkbox";
+import { cn } from "@/lib/utils";
 
 const categoryIcons: Record<Goal['category'], React.ElementType> = {
     Academic: Book,
@@ -15,13 +15,13 @@ const categoryIcons: Record<Goal['category'], React.ElementType> = {
 };
 
 type GoalListProps = {
-    goals: Goal[], 
-    onDeleteGoal: (goalId: string) => void,
+    goals: Goal[];
+    onDeleteGoal: (goalId: string) => void;
     onUpdateGoal: (goal: Goal) => void;
-    onUpdateProgress: (goalId: string, progress: number) => void;
+    onToggleSubTask: (goalId: string, subTaskId: string) => void;
 }
 
-export function GoalList({ goals, onDeleteGoal, onUpdateGoal, onUpdateProgress }: GoalListProps) {
+export function GoalList({ goals, onDeleteGoal, onUpdateGoal, onToggleSubTask }: GoalListProps) {
     const goalsByCategory = goals.reduce((acc, goal) => {
         (acc[goal.category] = acc[goal.category] || []).push(goal);
         return acc;
@@ -30,7 +30,7 @@ export function GoalList({ goals, onDeleteGoal, onUpdateGoal, onUpdateProgress }
     if (goals.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-center border-2 border-dashed rounded-lg bg-muted/50">
-                <div >
+                <div>
                     <p className="text-lg font-semibold">No goals yet!</p>
                     <p className="text-muted-foreground">Click "New Goal" to get started.</p>
                 </div>
@@ -50,24 +50,36 @@ export function GoalList({ goals, onDeleteGoal, onUpdateGoal, onUpdateProgress }
                                 {category}
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-8">
+                        <CardContent className="space-y-6">
                             {categoryGoals.map((goal) => (
                                 <div key={goal.id}>
-                                    <div className="flex justify-between mb-2">
-                                        <span className="font-medium">{goal.title}</span>
+                                    <div className="flex items-start justify-between mb-2">
+                                        <div>
+                                            <span className="font-medium">{goal.title}</span>
+                                            {goal.description && <p className="text-sm text-muted-foreground">{goal.description}</p>}
+                                        </div>
                                         <EditGoalDialog goal={goal} onUpdateGoal={onUpdateGoal} onDeleteGoal={onDeleteGoal} />
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                       <Slider
-                                            value={[goal.progress]}
-                                            onValueChange={([value]) => onUpdateProgress(goal.id, value)}
-                                            max={100}
-                                            step={1}
-                                            className="w-full"
-                                            aria-label={`${goal.title} progress slider`}
-                                        />
+                                    <div className="flex items-center gap-3 mb-3">
+                                       <Progress value={goal.progress} className="w-full" />
                                         <span className="text-sm font-semibold w-12 text-right">{goal.progress}%</span>
                                     </div>
+                                    {goal.subTasks.length > 0 && (
+                                        <div className="pl-2 mt-3 space-y-2 border-l-2">
+                                            {goal.subTasks.map(subTask => (
+                                                <div key={subTask.id} className="flex items-center gap-3">
+                                                    <Checkbox 
+                                                        id={subTask.id}
+                                                        checked={subTask.completed}
+                                                        onCheckedChange={() => onToggleSubTask(goal.id, subTask.id)}
+                                                    />
+                                                    <label htmlFor={subTask.id} className={cn("text-sm", subTask.completed && "line-through text-muted-foreground")}>
+                                                        {subTask.text}
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </CardContent>

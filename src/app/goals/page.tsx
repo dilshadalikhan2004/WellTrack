@@ -5,37 +5,61 @@ import { NewGoalDialog } from "@/components/goals/new-goal-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { mockGoals } from "@/lib/data";
-import type { Goal } from "@/lib/types";
+import type { Goal, SubTask } from "@/lib/types";
 import { Target } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const calculateProgress = (subTasks: SubTask[]): number => {
+  if (subTasks.length === 0) return 0;
+  const completed = subTasks.filter(st => st.completed).length;
+  return Math.round((completed / subTasks.length) * 100);
+};
 
 export default function GoalsPage() {
-  const [goals, setGoals] = useState<Goal[]>(mockGoals);
+  const [goals, setGoals] = useState<Goal[]>(mockGoals.map(g => ({...g, progress: calculateProgress(g.subTasks)})));
+
+  useEffect(() => {
+    // Recalculate all progress when goals change
+    setGoals(currentGoals => currentGoals.map(g => ({
+        ...g,
+        progress: calculateProgress(g.subTasks)
+    })))
+  }, []);
 
   const addGoal = (newGoal: Omit<Goal, 'id' | 'progress'>) => {
-    setGoals(prevGoals => [
-        ...prevGoals,
-        {
-            ...newGoal,
-            id: `goal-${Date.now()}`,
-            progress: 0,
-        }
-    ]);
-  }
+    const goalWithProgress = {
+      ...newGoal,
+      id: `goal-${Date.now()}`,
+      progress: calculateProgress(newGoal.subTasks),
+    };
+    setGoals(prevGoals => [...prevGoals, goalWithProgress]);
+  };
 
   const deleteGoal = (goalId: string) => {
     setGoals(prevGoals => prevGoals.filter(goal => goal.id !== goalId));
-  }
-
-  const updateGoal = (updatedGoal: Goal) => {
-    setGoals(prevGoals => prevGoals.map(goal => goal.id === updatedGoal.id ? updatedGoal : goal));
   };
 
-  const updateGoalProgress = (goalId: string, progress: number) => {
+  const updateGoal = (updatedGoal: Goal) => {
+    const goalWithProgress = {
+      ...updatedGoal,
+      progress: calculateProgress(updatedGoal.subTasks),
+    };
     setGoals(prevGoals => 
-        prevGoals.map(goal => 
-            goal.id === goalId ? { ...goal, progress } : goal
-        )
+      prevGoals.map(goal => goal.id === goalWithProgress.id ? goalWithProgress : goal)
+    );
+  };
+  
+  const toggleSubTask = (goalId: string, subTaskId: string) => {
+    setGoals(prevGoals =>
+      prevGoals.map(goal => {
+        if (goal.id === goalId) {
+          const newSubTasks = goal.subTasks.map(st =>
+            st.id === subTaskId ? { ...st, completed: !st.completed } : st
+          );
+          return { ...goal, subTasks: newSubTasks, progress: calculateProgress(newSubTasks) };
+        }
+        return goal;
+      })
     );
   };
 
@@ -67,7 +91,7 @@ export default function GoalsPage() {
           goals={goals} 
           onDeleteGoal={deleteGoal} 
           onUpdateGoal={updateGoal}
-          onUpdateProgress={updateGoalProgress} 
+          onToggleSubTask={toggleSubTask}
         />
       </div>
     </div>

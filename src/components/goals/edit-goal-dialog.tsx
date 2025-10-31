@@ -22,9 +22,9 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import type { Goal } from '@/lib/types';
-import { Pencil, Trash2 } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import type { Goal, SubTask } from '@/lib/types';
+import { Pencil, Trash2, Plus, X } from 'lucide-react';
+import { useState, type FormEvent, useEffect } from 'react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
 type EditGoalDialogProps = {
@@ -39,6 +39,39 @@ export function EditGoalDialog({ goal, onUpdateGoal, onDeleteGoal }: EditGoalDia
   const [title, setTitle] = useState(goal.title);
   const [category, setCategory] = useState<Goal['category']>(goal.category);
   const [description, setDescription] = useState(goal.description || '');
+  const [subTasks, setSubTasks] = useState<SubTask[]>(goal.subTasks);
+  const [currentSubTask, setCurrentSubTask] = useState('');
+
+  useEffect(() => {
+    if (open) {
+      setTitle(goal.title);
+      setCategory(goal.category);
+      setDescription(goal.description || '');
+      setSubTasks(goal.subTasks);
+      setCurrentSubTask('');
+    }
+  }, [open, goal]);
+
+  const handleAddSubTask = () => {
+    if(currentSubTask.trim()){
+      const newSubTask: SubTask = {
+        id: `subtask-${Date.now()}`,
+        text: currentSubTask.trim(),
+        completed: false
+      };
+      setSubTasks([...subTasks, newSubTask]);
+      setCurrentSubTask('');
+    }
+  };
+
+  const handleRemoveSubTask = (id: string) => {
+    setSubTasks(subTasks.filter((st) => st.id !== id));
+  };
+  
+  const handleToggleSubTask = (id: string) => {
+    setSubTasks(subTasks.map(st => st.id === id ? {...st, completed: !st.completed} : st));
+  }
+
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -55,7 +88,8 @@ export function EditGoalDialog({ goal, onUpdateGoal, onDeleteGoal }: EditGoalDia
         ...goal, 
         title, 
         category, 
-        description 
+        description,
+        subTasks
     });
     
     toast({
@@ -82,30 +116,29 @@ export function EditGoalDialog({ goal, onUpdateGoal, onDeleteGoal }: EditGoalDia
             <Pencil className="w-4 h-4 text-muted-foreground" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit Goal</DialogTitle>
           <DialogDescription>
             Make changes to your goal here. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="max-h-[80vh] overflow-y-auto pr-4">
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right">
+            <div className="space-y-1">
+              <Label htmlFor="title-edit">
                 Title
               </Label>
               <Input 
-                id="title" 
+                id="title-edit" 
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g., Read 12 books" 
-                className="col-span-3" 
                 required 
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right">
+            <div className="space-y-1">
+              <Label htmlFor="category-edit">
                 Category
               </Label>
               <Select 
@@ -113,7 +146,7 @@ export function EditGoalDialog({ goal, onUpdateGoal, onDeleteGoal }: EditGoalDia
                 value={category}
                 onValueChange={(value) => setCategory(value as Goal['category'])}
               >
-                <SelectTrigger className="col-span-3">
+                <SelectTrigger id="category-edit">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -124,20 +157,44 @@ export function EditGoalDialog({ goal, onUpdateGoal, onDeleteGoal }: EditGoalDia
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
+            <div className="space-y-1">
+              <Label htmlFor="description-edit">
                 Description
               </Label>
               <Textarea
-                id="description"
+                id="description-edit"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe your goal and why it's important..."
-                className="col-span-3"
               />
             </div>
+             <div className='space-y-2'>
+              <Label>Sub-tasks</Label>
+              <div className="p-2 space-y-2 border rounded-lg bg-muted/50">
+                {subTasks.map((subTask) => (
+                  <div key={subTask.id} className="flex items-center justify-between gap-2 p-2 text-sm rounded-md bg-background">
+                    <span>{subTask.text}</span>
+                    <Button type="button" variant="ghost" size="icon" className="w-5 h-5" onClick={() => handleRemoveSubTask(subTask.id)}>
+                      <X className="w-3 h-3"/>
+                    </Button>
+                  </div>
+                ))}
+                 {subTasks.length === 0 && <p className="text-xs text-center text-muted-foreground">Add some steps to your goal.</p>}
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  value={currentSubTask}
+                  onChange={(e) => setCurrentSubTask(e.target.value)}
+                  placeholder="Add a sub-task..."
+                  onKeyDown={(e) => { if(e.key === 'Enter') { e.preventDefault(); handleAddSubTask();}}}
+                />
+                <Button type="button" onClick={handleAddSubTask}>
+                  <Plus className="w-4 h-4 mr-1" /> Add
+                </Button>
+              </div>
+            </div>
           </div>
-          <DialogFooter className='justify-between'>
+          <DialogFooter className='justify-between pt-4'>
             <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button type="button" variant="destructive">

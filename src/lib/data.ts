@@ -109,18 +109,35 @@ export const mockGoals: Goal[] = [
     title: 'Achieve a 3.5 GPA this semester',
     category: 'Academic',
     progress: 75,
+    subTasks: [
+        { id: 'st-1-1', text: 'Get an A in Math', completed: true },
+        { id: 'st-1-2', text: 'Get at least a B+ in History', completed: true },
+        { id: 'st-1-3', text: 'Get an A- in Science', completed: true },
+        { id: 'st-1-4', text: 'Submit all assignments on time', completed: false },
+    ]
   },
   {
     id: 'goal-2',
     title: 'Run a 5k in under 30 minutes',
     category: 'Fitness',
     progress: 50,
+    subTasks: [
+        { id: 'st-2-1', text: 'Run 3 times a week', completed: true },
+        { id: 'st-2-2', text: 'Incorporate interval training', completed: true },
+        { id: 'st-2-3', text: 'Complete a practice 5k', completed: false },
+        { id: 'st-2-4', text: 'Improve pace by 30s', completed: false },
+    ]
   },
   {
     id: 'goal-3',
     title: 'Practice daily mindfulness',
     category: 'Mental Health',
     progress: 90,
+    subTasks: [
+        { id: 'st-3-1', text: 'Meditate for 10 mins daily', completed: true },
+        { id: 'st-3-2', text: 'Do a digital detox once a week', completed: true },
+        { id: 'st-3-3', text: 'Journal thoughts and feelings', completed: true },
+    ]
   },
 ];
 

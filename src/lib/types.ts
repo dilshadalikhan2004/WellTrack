@@ -13,7 +13,7 @@ export type User = {
 };
 
 export type Habit = {
-  id: string;
+  id:string;
   name: string;
   category: 'Physical' | 'Mental' | 'Academic';
   icon: LucideIcon;
@@ -34,12 +34,19 @@ export type MoodLog = {
   rating: number;
 };
 
+export type SubTask = {
+    id: string;
+    text: string;
+    completed: boolean;
+};
+
 export type Goal = {
   id: string;
   title: string;
   category: 'Academic' | 'Fitness' | 'Mental Health' | 'Personal';
   description?: string;
-  progress: number;
+  subTasks: SubTask[];
+  progress: number; // This will be calculated from subTasks
 };
 
 export type Badge = {
