@@ -1,7 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   Smile,
@@ -13,24 +14,14 @@ import {
   Flame,
   NotebookPen,
 } from 'lucide-react';
-
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-
+import { Avatar, AvatarFallback } from '../ui/avatar';
+import { Separator } from '../ui/separator';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -44,6 +35,16 @@ const navItems = [
 
 function NavContent() {
   const pathname = usePathname();
+  const { user } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    if (auth) {
+      await signOut(auth);
+      router.push('/login');
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -66,6 +67,27 @@ function NavContent() {
           </Link>
         ))}
       </nav>
+      {user && (
+        <div className="p-2 border-t">
+           <Separator className='my-2' />
+          <div className="p-2">
+            <p className="text-sm font-medium leading-none">{user.displayName || user.email}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {user.email}
+            </p>
+          </div>
+          <Button variant="ghost" className="justify-start w-full" asChild>
+            <Link href="/profile">
+              <Settings className="w-4 h-4 mr-2" />
+              Profile & Settings
+            </Link>
+          </Button>
+          <Button variant="ghost" className="justify-start w-full" onClick={handleLogout}>
+            <LogOut className="w-4 h-4 mr-2" />
+            Log out
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -76,8 +98,10 @@ export function AppSidebar() {
       <div className='flex items-center gap-4'>
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="shrink-0">
-              <Menu className="w-5 h-5" />
+            <Button variant="ghost" size="icon" className="shrink-0 rounded-full">
+               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary">
+                D
+               </div>
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
@@ -89,61 +113,10 @@ export function AppSidebar() {
           </SheetContent>
         </Sheet>
         
-        <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-            <Logo />
-        </Link>
+        <div className="text-lg font-semibold font-headline">
+          WellTrack
+        </div>
       </div>
-      
-      <UserMenu />
     </header>
-  );
-}
-
-function UserMenu() {
-  const { user } = useUser();
-  const auth = useAuth();
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    router.push('/login');
-  };
-
-  if (!user) {
-    return null;
-  }
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative w-10 h-10 rounded-full">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary">
-                {user.displayName?.charAt(0) || user.email?.charAt(0)}
-            </div>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.displayName || user.email}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
-            </p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/profile">
-            <Settings className="w-4 h-4 mr-2" />
-            Profile & Settings
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
-          <LogOut className="w-4 h-4 mr-2" />
-          Log out
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }
