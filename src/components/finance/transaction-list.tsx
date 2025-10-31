@@ -4,7 +4,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import type { FinancialTransaction } from "@/lib/types";
 import { format } from "date-fns";
-import { TrendingUp, TrendingDown, Utensils, Bus, Home, Film, ShoppingBag, Gift, Briefcase, HandCoins } from "lucide-react";
+import { TrendingUp, TrendingDown, Utensils, Bus, Home, Film, ShoppingBag, Gift, Briefcase, HandCoins, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { type Timestamp } from "firebase/firestore";
 
@@ -76,5 +76,3 @@ export function TransactionList({ transactions, isLoading, className }: Transact
         </Card>
     )
 }
-
-    
