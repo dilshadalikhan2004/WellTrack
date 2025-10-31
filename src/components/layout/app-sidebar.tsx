@@ -30,6 +30,7 @@ import {
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { Separator } from '../ui/separator';
+import { useState } from 'react';
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -43,7 +44,12 @@ const navItems = [
   { href: '/insights', label: 'Insights', icon: BrainCircuit },
 ];
 
-function NavLink({ href, label, icon: Icon }: (typeof navItems)[0]) {
+function NavLink({
+  href,
+  label,
+  icon: Icon,
+  onClick,
+}: (typeof navItems)[0] & { onClick: () => void }) {
   const pathname = usePathname();
   return (
     <Link href={href} passHref>
@@ -51,6 +57,7 @@ function NavLink({ href, label, icon: Icon }: (typeof navItems)[0]) {
         variant={pathname === href ? 'secondary' : 'ghost'}
         className="justify-start w-full"
         as="a"
+        onClick={onClick}
       >
         <Icon className="w-4 h-4 mr-2" />
         {label}
@@ -59,7 +66,7 @@ function NavLink({ href, label, icon: Icon }: (typeof navItems)[0]) {
   );
 }
 
-function NavContent() {
+function NavContent({ onLinkClick }: { onLinkClick: () => void }) {
   const { user } = useUser();
   const auth = useAuth();
   const router = useRouter();
@@ -69,18 +76,19 @@ function NavContent() {
       await signOut(auth);
       router.push('/login');
     }
+    onLinkClick();
   };
 
   return (
-    <div className="flex flex-col h-full w-60">
+    <div className="flex flex-col h-full">
       <div className="flex items-center h-16 px-4 border-b">
-        <Link href="/">
+        <Link href="/" onClick={onLinkClick}>
           <Logo />
         </Link>
       </div>
       <nav className="flex-1 px-2 py-4 space-y-1">
         {navItems.map((item) => (
-          <NavLink key={item.href} {...item} />
+          <NavLink key={item.href} {...item} onClick={onLinkClick} />
         ))}
       </nav>
       {user && (
@@ -95,7 +103,12 @@ function NavContent() {
             </p>
           </div>
           <Link href="/profile" passHref>
-            <Button variant="ghost" className="justify-start w-full" as="a">
+            <Button
+              variant="ghost"
+              className="justify-start w-full"
+              as="a"
+              onClick={onLinkClick}
+            >
               <Settings className="w-4 h-4 mr-2" />
               Profile & Settings
             </Button>
@@ -115,37 +128,37 @@ function NavContent() {
 }
 
 export function AppSidebar() {
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const handleLinkClick = () => setIsSheetOpen(false);
+
   return (
     <>
-      <header className="sticky top-0 z-30 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm">
-        <Sheet>
+      <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:hidden">
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">
               <Menu className="w-6 h-6" />
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="flex flex-col p-0">
+          <SheetContent side="left" className="flex flex-col p-0 w-60">
             <SheetHeader className="sr-only">
-              <SheetTitle>Navigation Menu</SheetTitle>
+              <SheetTitle>WellTrack</SheetTitle>
               <SheetDescription>
-                Main navigation links for the WellTrack application.
+                Your personal wellness companion.
               </SheetDescription>
             </SheetHeader>
-            <NavContent />
+            <NavContent onLinkClick={handleLinkClick} />
           </SheetContent>
         </Sheet>
-        <div className="flex justify-center flex-1">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-lg font-semibold"
-          >
-            <Logo />
-          </Link>
-        </div>
-        {/* Placeholder for right-side header items if needed */}
+        <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+          <Logo />
+        </Link>
         <div className="w-9 h-9" />
       </header>
+      <div className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 md:z-50">
+        <NavContent onLinkClick={() => {}} />
+      </div>
     </>
   );
 }
