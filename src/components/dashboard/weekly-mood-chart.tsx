@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { ChartTooltipContent } from '@/components/ui/chart';
+import { ChartTooltipContent, ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { mockMoodLogs } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { format, subDays } from 'date-fns';
@@ -24,6 +24,13 @@ const last7DaysData = Array.from({ length: 7 }, (_, i) => {
   };
 }).reverse();
 
+const chartConfig = {
+  mood: {
+    label: 'Mood',
+    color: 'hsl(var(--primary))',
+  },
+} satisfies ChartConfig;
+
 export function WeeklyMoodChart({ className }: { className?: string }) {
   return (
     <Card className={cn(className)}>
@@ -32,7 +39,7 @@ export function WeeklyMoodChart({ className }: { className?: string }) {
         <CardDescription>Your mood ratings over the last 7 days.</CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={250}>
+        <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
           <BarChart data={last7DaysData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
              <XAxis
               dataKey="name"
@@ -55,11 +62,11 @@ export function WeeklyMoodChart({ className }: { className?: string }) {
             />
             <Bar
               dataKey="mood"
-              fill="hsl(var(--primary))"
+              fill="var(--color-mood)"
               radius={[4, 4, 0, 0]}
             />
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
