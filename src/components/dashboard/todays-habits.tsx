@@ -24,20 +24,19 @@ export function TodaysHabits({ className }: { className?: string }) {
     return collection(firestore, `users/${user.uid}/habits`);
   }, [firestore, user]);
   
-  const { data: habits = [], isLoading: habitsLoading } = useCollection<Habit>(habitsCollectionRef);
+  const { data: habits, isLoading: habitsLoading } = useCollection<Habit>(habitsCollectionRef);
 
   const habitLogsCollectionRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return collection(firestore, `users/${user.uid}/habit_logs`);
   }, [firestore, user]);
 
-  const { data: habitLogs = [], isLoading: logsLoading } = useCollection<HabitLog>(habitLogsCollectionRef);
+  const { data: habitLogs, isLoading: logsLoading } = useCollection<HabitLog>(habitLogsCollectionRef);
 
   const [todaysHabitStatus, setTodaysHabitStatus] = useState<Record<string, { completed: boolean, logId?: string }>>({});
 
   useEffect(() => {
     if (habits && habitLogs) {
-      const today = new Date();
       const newStatus: Record<string, { completed: boolean, logId?: string }> = {};
 
       const todaysLogs = habitLogs.filter(log => log.timestamp && isToday(log.timestamp.toDate()));
@@ -86,7 +85,7 @@ export function TodaysHabits({ className }: { className?: string }) {
       <CardContent>
         {isLoading ? <p>Loading habits...</p> : (
             <div className="space-y-4">
-            {habits.map((habit) => (
+            {habits && habits.map((habit) => (
                 <div
                 key={habit.id}
                 className="flex items-center p-3 transition-colors rounded-lg bg-muted/50 hover:bg-muted"
@@ -119,7 +118,7 @@ export function TodaysHabits({ className }: { className?: string }) {
                 />
                 </div>
             ))}
-             {habits.length === 0 && <p className='text-sm text-center text-muted-foreground'>No habits defined yet.</p>}
+             {(!habits || habits.length === 0) && <p className='text-sm text-center text-muted-foreground'>No habits defined yet.</p>}
             </div>
         )}
       </CardContent>
