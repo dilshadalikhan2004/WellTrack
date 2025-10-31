@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookHeart, Info, Video, Mic, BookOpen, Users } from 'lucide-react';
+import { BookHeart, Info, Video, Mic, BookOpen, Users, Brain } from 'lucide-react';
 import { ResourceCard } from '@/components/library/resource-card';
 import type { Resource } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -45,6 +45,78 @@ const mockResources: Resource[] = [
         imageUrl: 'https://picsum.photos/seed/infographic4/600/400',
         duration: 2,
     },
+    {
+        id: 'video-1',
+        title: 'How Mindfulness Empowers Us',
+        description: 'An animated introduction to the power of being present.',
+        type: 'video',
+        category: 'Mindfulness',
+        imageUrl: 'https://picsum.photos/seed/video1/600/400',
+        duration: 10,
+    },
+    {
+        id: 'video-2',
+        title: 'The Science of Kindness',
+        description: 'Discover the psychological benefits of being kind to others and yourself.',
+        type: 'video',
+        category: 'Well-being',
+        imageUrl: 'https://picsum.photos/seed/video2/600/400',
+        duration: 8,
+    },
+    {
+        id: 'podcast-1',
+        title: 'The Happiness Lab',
+        description: 'Dr. Laurie Santos on the science of happiness.',
+        type: 'podcast',
+        category: 'Positive Psychology',
+        imageUrl: 'https://picsum.photos/seed/podcast1/600/400',
+        duration: 35,
+    },
+    {
+        id: 'podcast-2',
+        title: 'Feeling Good Podcast',
+        description: 'Dr. David Burns discusses CBT techniques for overcoming depression and anxiety.',
+        type: 'podcast',
+        category: 'CBT',
+        imageUrl: 'https://picsum.photos/seed/podcast2/600/400',
+        duration: 45,
+    },
+    {
+        id: 'course-1',
+        title: 'Foundations of Positive Psychology',
+        description: 'A 5-part micro-course on the core principles of flourishing.',
+        type: 'course',
+        category: 'Positive Psychology',
+        imageUrl: 'https://picsum.photos/seed/course1/600/400',
+        duration: 60,
+    },
+    {
+        id: 'talk-1',
+        title: 'The Power of Vulnerability',
+        description: 'Brené Brown\'s groundbreaking talk on human connection.',
+        type: 'talk',
+        category: 'Relationships',
+        imageUrl: 'https://picsum.photos/seed/talk1/600/400',
+        duration: 20,
+    },
+    {
+        id: 'book-1',
+        title: 'Atomic Habits',
+        description: 'Summary of James Clear\'s framework for building good habits.',
+        type: 'book',
+        category: 'Productivity',
+        imageUrl: 'https://picsum.photos/seed/book1/600/400',
+        duration: 15,
+    },
+     {
+        id: 'research-1',
+        title: 'The Benefits of Nature on Mental Health',
+        description: 'A summary of recent studies on ecotherapy.',
+        type: 'research',
+        category: 'Well-being',
+        imageUrl: 'https://picsum.photos/seed/research1/600/400',
+        duration: 12,
+    },
 ];
 
 export default function LibraryPage() {
@@ -66,16 +138,60 @@ export default function LibraryPage() {
                     </CardHeader>
                     <CardContent>
                         <Tabs defaultValue="infographics" className="w-full">
-                            <TabsList className="grid w-full grid-cols-5 mb-4">
+                            <TabsList className="grid w-full grid-cols-1 mb-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
                                 <TabsTrigger value="infographics"><Info className="w-4 h-4 mr-2" /> Infographics</TabsTrigger>
-                                <TabsTrigger value="videos" disabled><Video className="w-4 h-4 mr-2" /> Videos</TabsTrigger>
-                                <TabsTrigger value="podcasts" disabled><Mic className="w-4 h-4 mr-2" /> Podcasts</TabsTrigger>
-                                <TabsTrigger value="courses" disabled><BookOpen className="w-4 h-4 mr-2" /> Courses</TabsTrigger>
-                                <TabsTrigger value="talks" disabled><Users className="w-4 h-4 mr-2" /> Talks</TabsTrigger>
+                                <TabsTrigger value="videos"><Video className="w-4 h-4 mr-2" /> Videos</TabsTrigger>
+                                <TabsTrigger value="podcasts"><Mic className="w-4 h-4 mr-2" /> Podcasts</TabsTrigger>
+                                <TabsTrigger value="courses"><BookOpen className="w-4 h-4 mr-2" /> Courses</TabsTrigger>
+                                <TabsTrigger value="talks"><Users className="w-4 h-4 mr-2" /> Talks</TabsTrigger>
+                                <TabsTrigger value="books"><Book className="w-4 h-4 mr-2" /> Books</TabsTrigger>
+                                <TabsTrigger value="research"><Brain className="w-4 h-4 mr-2" /> Research</TabsTrigger>
                             </TabsList>
                             <TabsContent value="infographics">
                                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                     {mockResources.filter(r => r.type === 'infographic').map((resource) => (
+                                        <ResourceCard key={resource.id} resource={resource} />
+                                    ))}
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="videos">
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                    {mockResources.filter(r => r.type === 'video').map((resource) => (
+                                        <ResourceCard key={resource.id} resource={resource} />
+                                    ))}
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="podcasts">
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                    {mockResources.filter(r => r.type === 'podcast').map((resource) => (
+                                        <ResourceCard key={resource.id} resource={resource} />
+                                    ))}
+                                </div>
+                            </TabsContent>
+                             <TabsContent value="courses">
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                    {mockResources.filter(r => r.type === 'course').map((resource) => (
+                                        <ResourceCard key={resource.id} resource={resource} />
+                                    ))}
+                                </div>
+                            </TabsContent>
+                             <TabsContent value="talks">
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                    {mockResources.filter(r => r.type === 'talk').map((resource) => (
+                                        <ResourceCard key={resource.id} resource={resource} />
+                                    ))}
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="books">
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                    {mockResources.filter(r => r.type === 'book').map((resource) => (
+                                        <ResourceCard key={resource.id} resource={resource} />
+                                    ))}
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="research">
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                    {mockResources.filter(r => r.type === 'research').map((resource) => (
                                         <ResourceCard key={resource.id} resource={resource} />
                                     ))}
                                 </div>

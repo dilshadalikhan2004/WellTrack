@@ -5,18 +5,21 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Resource } from '@/lib/types';
-import { Clock, Info, Video } from 'lucide-react';
+import { Clock, Info, Video, Mic, BookOpen, Users, Brain, Book } from 'lucide-react';
 import { Button } from '../ui/button';
 
 type ResourceCardProps = {
   resource: Resource;
 };
 
-const typeIcons = {
+const typeIcons: Record<Resource['type'], React.ElementType> = {
     infographic: Info,
     video: Video,
-    article: Info,
-    podcast: Info
+    podcast: Mic,
+    course: BookOpen,
+    talk: Users,
+    book: Book,
+    research: Brain,
 }
 
 
@@ -35,7 +38,7 @@ export function ResourceCard({ resource }: ResourceCardProps) {
           />
            <div className="absolute top-2 right-2">
             <Badge variant="secondary" className='capitalize'>
-                <Icon className='w-3 h-3 mr-1'/>
+                {Icon && <Icon className='w-3 h-3 mr-1'/>}
                 {resource.type}
             </Badge>
           </div>
@@ -52,7 +55,7 @@ export function ResourceCard({ resource }: ResourceCardProps) {
         {resource.duration && (
             <div className='flex items-center gap-1'>
                 <Clock className="w-3 h-3" />
-                <span>{resource.duration} min read</span>
+                <span>{resource.duration} min</span>
             </div>
         )}
         <Button size="sm" variant="secondary" className="ml-auto">

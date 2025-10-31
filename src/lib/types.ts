@@ -143,7 +143,7 @@ export type Resource = {
     id: string;
     title: string;
     description: string;
-    type: 'infographic' | 'video' | 'article' | 'podcast';
+    type: 'infographic' | 'video' | 'podcast' | 'course' | 'talk' | 'book' | 'research';
     category: string;
     imageUrl: string;
     contentUrl?: string;
