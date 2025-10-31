@@ -4,6 +4,8 @@ import { Progress } from "@/components/ui/progress";
 import { Book, HeartPulse, Brain, User, Trash2 } from "lucide-react";
 import type { Goal } from "@/lib/types";
 import { Button } from "../ui/button";
+import { EditGoalDialog } from "./edit-goal-dialog";
+import { Slider } from "../ui/slider";
 
 const categoryIcons: Record<Goal['category'], React.ElementType> = {
     Academic: Book,
@@ -12,7 +14,14 @@ const categoryIcons: Record<Goal['category'], React.ElementType> = {
     Personal: User
 };
 
-export function GoalList({ goals, onDeleteGoal }: { goals: Goal[], onDeleteGoal: (goalId: string) => void }) {
+type GoalListProps = {
+    goals: Goal[], 
+    onDeleteGoal: (goalId: string) => void,
+    onUpdateGoal: (goal: Goal) => void;
+    onUpdateProgress: (goalId: string, progress: number) => void;
+}
+
+export function GoalList({ goals, onDeleteGoal, onUpdateGoal, onUpdateProgress }: GoalListProps) {
     const goalsByCategory = goals.reduce((acc, goal) => {
         (acc[goal.category] = acc[goal.category] || []).push(goal);
         return acc;
@@ -41,19 +50,24 @@ export function GoalList({ goals, onDeleteGoal }: { goals: Goal[], onDeleteGoal:
                                 {category}
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-6">
+                        <CardContent className="space-y-8">
                             {categoryGoals.map((goal) => (
                                 <div key={goal.id}>
-                                    <div className="flex justify-between mb-1">
-                                        <span className="text-sm font-medium">{goal.title}</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm font-semibold">{goal.progress}%</span>
-                                            <Button variant="ghost" size="icon" className="w-6 h-6" onClick={() => onDeleteGoal(goal.id)}>
-                                                <Trash2 className="w-4 h-4 text-muted-foreground" />
-                                            </Button>
-                                        </div>
+                                    <div className="flex justify-between mb-2">
+                                        <span className="font-medium">{goal.title}</span>
+                                        <EditGoalDialog goal={goal} onUpdateGoal={onUpdateGoal} onDeleteGoal={onDeleteGoal} />
                                     </div>
-                                    <Progress value={goal.progress} aria-label={`${goal.title} progress`} />
+                                    <div className="flex items-center gap-3">
+                                       <Slider
+                                            value={[goal.progress]}
+                                            onValueChange={([value]) => onUpdateProgress(goal.id, value)}
+                                            max={100}
+                                            step={1}
+                                            className="w-full"
+                                            aria-label={`${goal.title} progress slider`}
+                                        />
+                                        <span className="text-sm font-semibold w-12 text-right">{goal.progress}%</span>
+                                    </div>
                                 </div>
                             ))}
                         </CardContent>
