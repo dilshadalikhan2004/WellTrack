@@ -132,8 +132,7 @@ export function AppSidebar() {
   const handleLinkClick = () => setIsSheetOpen(false);
 
   return (
-    <>
-      <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:hidden">
+      <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm">
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -142,7 +141,7 @@ export function AppSidebar() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="flex flex-col p-0 w-60">
-            <SheetHeader className="sr-only">
+             <SheetHeader className="sr-only">
               <SheetTitle>WellTrack</SheetTitle>
               <SheetDescription>
                 Your personal wellness companion.
@@ -156,9 +155,5 @@ export function AppSidebar() {
         </Link>
         <div className="w-9 h-9" />
       </header>
-      <div className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 md:z-50">
-        <NavContent onLinkClick={() => {}} />
-      </div>
-    </>
   );
 }
