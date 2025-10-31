@@ -93,7 +93,7 @@ const mockResources: Resource[] = [
     {
         id: 'talk-1',
         title: 'The Power of Vulnerability',
-        description: 'Brené Brown\'s groundbreaking talk on human connection.',
+        description: "Brené Brown's groundbreaking talk on human connection.",
         type: 'talk',
         category: 'Relationships',
         imageUrl: 'https://picsum.photos/seed/talk1/600/400',
@@ -102,7 +102,7 @@ const mockResources: Resource[] = [
     {
         id: 'book-1',
         title: 'Atomic Habits',
-        description: 'Summary of James Clear\'s framework for building good habits.',
+        description: "Summary of James Clear's framework for building good habits.",
         type: 'book',
         category: 'Productivity',
         imageUrl: 'https://picsum.photos/seed/book1/600/400',
