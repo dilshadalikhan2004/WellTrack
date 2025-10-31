@@ -11,7 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const AnalyzeJournalSentimentInputSchema = z.object({
+const AnalyzeJournalSentimentInputSchema = z.object({
   journalEntry: z
     .string()
     .describe('A journal entry from the user, describing their thoughts and feelings.'),
@@ -20,7 +20,7 @@ export type AnalyzeJournalSentimentInput = z.infer<
   typeof AnalyzeJournalSentimentInputSchema
 >;
 
-export const AnalyzeJournalSentimentOutputSchema = z.object({
+const AnalyzeJournalSentimentOutputSchema = z.object({
   sentiment: z
     .enum(['Positive', 'Negative', 'Neutral', 'Mixed'])
     .describe(
