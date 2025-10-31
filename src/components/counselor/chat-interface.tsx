@@ -30,7 +30,7 @@ export function ChatInterface() {
     return collection(firestore, `users/${user.uid}/counselor_chats`);
   }, [firestore, user]);
 
-  const { data: messages = [] } = useCollection<ChatMessage>(messagesCollectionRef);
+  const { data: messages } = useCollection<ChatMessage>(messagesCollectionRef);
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -47,7 +47,7 @@ export function ChatInterface() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading || !messagesCollectionRef || !user) return;
+    if (!input.trim() || isLoading || !messagesCollectionRef || !user || !messages) return;
 
     const userMessage: Omit<ChatMessage, 'id' | 'timestamp'> = { role: 'user', content: input, userProfileId: user.uid };
     await addDocumentNonBlocking(messagesCollectionRef, {...userMessage, timestamp: serverTimestamp()});
@@ -76,7 +76,7 @@ export function ChatInterface() {
     }
   };
   
-  const sortedMessages = [...messages].sort((a, b) => {
+  const sortedMessages = (messages || []).slice().sort((a, b) => {
     const timeA = a.timestamp?.toMillis() || 0;
     const timeB = b.timestamp?.toMillis() || 0;
     return timeA - timeB;
