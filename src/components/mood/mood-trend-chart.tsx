@@ -1,0 +1,57 @@
+'use client';
+
+import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { ChartTooltipContent } from '@/components/ui/chart';
+import { mockMoodLogs } from '@/lib/data';
+import { format, subDays, isSameDay } from 'date-fns';
+
+const last30DaysData = Array.from({ length: 30 }, (_, i) => {
+  const date = subDays(new Date(), i);
+  const logsOnDate = mockMoodLogs.filter((log) => isSameDay(log.date, date));
+  const avgRating = logsOnDate.length > 0
+    ? logsOnDate.reduce((sum, log) => sum + log.rating, 0) / logsOnDate.length
+    : null;
+
+  return {
+    date: format(date, 'MMM d'),
+    rating: avgRating,
+  };
+}).reverse();
+
+export function MoodTrendChart() {
+  return (
+    <div className="w-full h-[400px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={last30DaysData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+          <XAxis
+            dataKey="date"
+            stroke="hsl(var(--muted-foreground))"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            stroke="hsl(var(--muted-foreground))"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+            domain={[0, 10]}
+          />
+          <Tooltip
+            content={<ChartTooltipContent indicator="dot" />}
+          />
+          <Line
+            type="monotone"
+            dataKey="rating"
+            stroke="hsl(var(--primary))"
+            strokeWidth={2}
+            dot={{ r: 4, fill: 'hsl(var(--primary))' }}
+            activeDot={{ r: 6 }}
+            connectNulls
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
