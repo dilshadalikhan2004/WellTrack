@@ -37,9 +37,12 @@ export type MoodOption = {
 };
 
 export type MoodLog = {
-  date: Date;
+  id?: string;
+  date?: Date; // This is client-side processed
+  timestamp: Timestamp;
   mood: MoodOption['label'];
   rating: number;
+  userProfileId: string;
 };
 
 export type SubTask = {
