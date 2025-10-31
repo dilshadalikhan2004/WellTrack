@@ -19,7 +19,14 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { Separator } from '../ui/separator';
@@ -39,17 +46,17 @@ const navItems = [
 function NavLink({ href, label, icon: Icon }: (typeof navItems)[0]) {
   const pathname = usePathname();
   return (
-     <Link href={href} passHref>
-        <Button
+    <Link href={href} passHref>
+      <Button
         variant={pathname === href ? 'secondary' : 'ghost'}
         className="justify-start w-full"
         as="a"
-        >
+      >
         <Icon className="w-4 h-4 mr-2" />
         {label}
-        </Button>
+      </Button>
     </Link>
-  )
+  );
 }
 
 function NavContent() {
@@ -78,20 +85,26 @@ function NavContent() {
       </nav>
       {user && (
         <div className="p-2 border-t">
-           <Separator className='my-2' />
+          <Separator className="my-2" />
           <div className="p-2">
-            <p className="text-sm font-medium leading-none">{user.displayName || user.email}</p>
+            <p className="text-sm font-medium leading-none">
+              {user.displayName || user.email}
+            </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
           </div>
-            <Link href="/profile" passHref>
-                <Button variant="ghost" className="justify-start w-full" as="a">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Profile & Settings
-                </Button>
-            </Link>
-          <Button variant="ghost" className="justify-start w-full" onClick={handleLogout}>
+          <Link href="/profile" passHref>
+            <Button variant="ghost" className="justify-start w-full" as="a">
+              <Settings className="w-4 h-4 mr-2" />
+              Profile & Settings
+            </Button>
+          </Link>
+          <Button
+            variant="ghost"
+            className="justify-start w-full"
+            onClick={handleLogout}
+          >
             <LogOut className="w-4 h-4 mr-2" />
             Log out
           </Button>
@@ -113,13 +126,22 @@ export function AppSidebar() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="flex flex-col p-0">
-             <NavContent />
+            <SheetHeader className="sr-only">
+              <SheetTitle>Navigation Menu</SheetTitle>
+              <SheetDescription>
+                Main navigation links for the WellTrack application.
+              </SheetDescription>
+            </SheetHeader>
+            <NavContent />
           </SheetContent>
         </Sheet>
-         <div className="flex justify-center flex-1">
-            <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                <Logo />
-            </Link>
+        <div className="flex justify-center flex-1">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-lg font-semibold"
+          >
+            <Logo />
+          </Link>
         </div>
         {/* Placeholder for right-side header items if needed */}
         <div className="w-9 h-9" />
