@@ -20,6 +20,10 @@ export default function GoalsPage() {
     ]);
   }
 
+  const deleteGoal = (goalId: string) => {
+    setGoals(prevGoals => prevGoals.filter(goal => goal.id !== goalId));
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6">
@@ -27,7 +31,7 @@ export default function GoalsPage() {
         <NewGoalDialog onAddGoal={addGoal} />
       </header>
       <div className="flex-1 p-4 space-y-4 bg-muted/40 md:p-8">
-        <GoalList goals={goals} />
+        <GoalList goals={goals} onDeleteGoal={deleteGoal} />
       </div>
     </div>
   );
