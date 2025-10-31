@@ -95,7 +95,7 @@ export const mockMoodLogs: MoodLog[] = [
   { date: subDays(new Date(), 3), mood: 'Stressed', rating: 2 },
   { date: subDays(new Date(), 4), mood: 'Happy', rating: 8 },
   { date: subDays(new Date(), 5), mood: 'Sad', rating: 3 },
-  { date: subDays(new Date('2024-07-01'), 6), mood: 'Motivated', rating: 6 },
+  { date: subDays(new Date(), 6), mood: 'Motivated', rating: 6 },
   ...Array.from({ length: 150 }, (_, i) => ({
       date: subDays(new Date(), i + 7),
       mood: moodOptions[Math.floor(Math.random() * moodOptions.length)].label,
@@ -103,12 +103,10 @@ export const mockMoodLogs: MoodLog[] = [
   }))
 ];
 
-export const mockGoals: Goal[] = [
+export const mockGoals: Omit<Goal, 'id' | 'progress' | 'userProfileId'>[] = [
   {
-    id: 'goal-1',
     title: 'Achieve a 3.5 GPA this semester',
     category: 'Academic',
-    progress: 75,
     subTasks: [
         { id: 'st-1-1', text: 'Get an A in Math', completed: true },
         { id: 'st-1-2', text: 'Get at least a B+ in History', completed: true },
@@ -117,10 +115,8 @@ export const mockGoals: Goal[] = [
     ]
   },
   {
-    id: 'goal-2',
     title: 'Run a 5k in under 30 minutes',
     category: 'Fitness',
-    progress: 50,
     subTasks: [
         { id: 'st-2-1', text: 'Run 3 times a week', completed: true },
         { id: 'st-2-2', text: 'Incorporate interval training', completed: true },
@@ -129,10 +125,8 @@ export const mockGoals: Goal[] = [
     ]
   },
   {
-    id: 'goal-3',
     title: 'Practice daily mindfulness',
     category: 'Mental Health',
-    progress: 90,
     subTasks: [
         { id: 'st-3-1', text: 'Meditate for 10 mins daily', completed: true },
         { id: 'st-3-2', text: 'Do a digital detox once a week', completed: true },
@@ -140,6 +134,7 @@ export const mockGoals: Goal[] = [
     ]
   },
 ];
+
 
 export const mockBadges: Badge[] = [
   {

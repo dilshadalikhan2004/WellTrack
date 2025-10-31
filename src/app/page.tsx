@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Card,
   CardContent,
@@ -10,19 +12,22 @@ import { TodaysHabits } from '@/components/dashboard/todays-habits';
 import { WeeklyMoodChart } from '@/components/dashboard/weekly-mood-chart';
 import { ActiveGoals } from '@/components/dashboard/active-goals';
 import { QuickStats } from '@/components/dashboard/quick-stats';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { BrainCircuit, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { useUser } from '@/firebase';
 
 export default function DashboardPage() {
+  const { user } = useUser();
+  const userName = user?.displayName || user?.email?.split('@')[0] || 'User';
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-10 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6">
         <h1 className="text-xl font-semibold">Dashboard</h1>
       </header>
       <div className="flex-1 p-4 space-y-4 bg-muted/40 md:p-8">
-        <WelcomeHeader userName="Alex" />
+        <WelcomeHeader userName={userName} />
         <QuickStats />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
           <TodaysHabits className="lg:col-span-4" />

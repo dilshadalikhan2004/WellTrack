@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -436,6 +437,37 @@
         "id",
         "userProfileId"
       ]
+    },
+    "CounselorChat": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CounselorChat",
+      "type": "object",
+      "description": "Represents a message in the AI counselor chat.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the chat message."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of the message.",
+          "format": "date-time"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user", "model"],
+          "description": "The author of the message."
+        },
+        "content": {
+          "type": "string",
+          "description": "The text content of the message."
+        }
+      },
+      "required": ["id", "userProfileId", "timestamp", "role", "content"]
     }
   },
   "auth": {
@@ -539,6 +571,18 @@
               "name": "journalEntryId",
               "description": "The unique identifier for the journal entry."
             }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/counselor_chats/{messageId}",
+        "definition": {
+          "entityName": "CounselorChat",
+          "schema": { "$ref": "#/backend/entities/CounselorChat" },
+          "description": "Stores AI counselor chat messages. Accessible only to the authenticated user.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier for the user." },
+            { "name": "messageId", "description": "The unique identifier for the chat message." }
           ]
         }
       },

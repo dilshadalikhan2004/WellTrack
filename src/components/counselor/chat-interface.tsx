@@ -9,26 +9,28 @@ import { useToast } from '@/hooks/use-toast';
 import { personalCounselor } from '@/ai/flows/personal-counselor-flow';
 import { Bot, Loader2, Send, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { mockUser } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-
-type Message = {
-  role: 'user' | 'model';
-  content: string;
-};
+import { useCollection, useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, serverTimestamp } from 'firebase/firestore';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import type { ChatMessage } from '@/lib/types';
 
 export function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'model',
-      content: "Hello! I'm your AI personal counselor. I'm here to listen and support you. What's on your mind today?",
-    },
-  ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const userAvatar = PlaceHolderImages.find((p) => p.id === 'user-avatar');
+
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const messagesCollectionRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return collection(firestore, `users/${user.uid}/counselor_chats`);
+  }, [firestore, user]);
+
+  const { data: messages = [] } = useCollection<ChatMessage>(messagesCollectionRef);
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -45,20 +47,22 @@ export function ChatInterface() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading || !messagesCollectionRef || !user) return;
 
-    const userMessage: Message = { role: 'user', content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    const userMessage: Omit<ChatMessage, 'id' | 'timestamp'> = { role: 'user', content: input, userProfileId: user.uid };
+    await addDocumentNonBlocking(messagesCollectionRef, {...userMessage, timestamp: serverTimestamp()});
+
     setInput('');
     setIsLoading(true);
 
     try {
+      const history = messages.map(m => ({role: m.role, content: m.content}));
       const result = await personalCounselor({
-        history: messages,
+        history: history,
         message: input,
       });
-      const modelMessage: Message = { role: 'model', content: result.response };
-      setMessages((prev) => [...prev, modelMessage]);
+      const modelMessage: Omit<ChatMessage, 'id' | 'timestamp'> = { role: 'model', content: result.response, userProfileId: user.uid };
+      await addDocumentNonBlocking(messagesCollectionRef, {...modelMessage, timestamp: serverTimestamp()});
     } catch (error) {
       console.error('Error with AI Counselor:', error);
       toast({
@@ -66,20 +70,25 @@ export function ChatInterface() {
         title: 'An Error Occurred',
         description: 'The AI counselor is currently unavailable. Please try again later.',
       });
-       // Restore user message if AI fails
-       setMessages(prev => prev.slice(0, -1));
+       // Here you might want to add an error message to the chat UI
     } finally {
       setIsLoading(false);
     }
   };
+  
+  const sortedMessages = [...messages].sort((a, b) => {
+    const timeA = a.timestamp?.toMillis() || 0;
+    const timeB = b.timestamp?.toMillis() || 0;
+    return timeA - timeB;
+  });
 
   return (
     <div className="flex flex-col h-full bg-muted/40">
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="max-w-3xl mx-auto space-y-6">
-          {messages.map((message, index) => (
+          {sortedMessages.map((message, index) => (
             <div
-              key={index}
+              key={message.id || index}
               className={cn(
                 'flex items-start gap-4',
                 message.role === 'user' ? 'justify-end' : ''
@@ -104,7 +113,7 @@ export function ChatInterface() {
               </div>
               {message.role === 'user' && (
                 <Avatar className="w-10 h-10 border">
-                   <AvatarImage src={mockUser.avatarUrl} alt={mockUser.name} data-ai-hint={userAvatar?.imageHint}/>
+                   <AvatarImage src={user?.photoURL || userAvatar?.imageUrl} alt={user?.displayName || 'User'} data-ai-hint={userAvatar?.imageHint}/>
                   <AvatarFallback>
                     <User className="w-5 h-5" />
                   </AvatarFallback>
@@ -133,10 +142,10 @@ export function ChatInterface() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
             className="flex-1"
-            disabled={isLoading}
+            disabled={isLoading || !user}
             autoComplete="off"
           />
-          <Button type="submit" disabled={isLoading || !input.trim()}>
+          <Button type="submit" disabled={isLoading || !input.trim() || !user}>
             <Send className="w-4 h-4 mr-2" />
             Send
           </Button>

@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
-import { AppSidebar } from '@/components/layout/app-sidebar';
+import { FirebaseClientProvider } from '@/firebase';
+import { AppContent } from '@/components/layout/app-content';
 
 export const metadata: Metadata = {
   title: 'WellTrack',
@@ -25,13 +26,10 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('font-body antialiased')}>
-        <div className="relative flex min-h-screen">
-          <AppSidebar />
-          <main className="flex-1 md:pl-72">
-            {children}
-          </main>
-        </div>
-        <Toaster />
+        <FirebaseClientProvider>
+          <AppContent>{children}</AppContent>
+          <Toaster />
+        </FirebaseClientProvider>
       </body>
     </html>
   );

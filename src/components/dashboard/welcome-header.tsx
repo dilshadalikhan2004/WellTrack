@@ -7,13 +7,29 @@ import { cn } from '@/lib/utils';
 import { moodOptions } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import type { MoodOption } from '@/lib/types';
+import { useFirestore, useUser } from '@/firebase';
+import { collection, serverTimestamp } from 'firebase/firestore';
+import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 export function WelcomeHeader({ userName }: { userName: string }) {
   const [selectedMood, setSelectedMood] = useState<MoodOption | null>(null);
   const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
 
   const handleMoodSelect = (mood: MoodOption) => {
     setSelectedMood(mood);
+
+    if (user && firestore) {
+      const moodLogCollection = collection(firestore, `users/${user.uid}/mood_logs`);
+      addDocumentNonBlocking(moodLogCollection, {
+        mood: mood.label,
+        rating: mood.rating,
+        timestamp: serverTimestamp(),
+        userProfileId: user.uid,
+      });
+    }
+
     toast({
       title: 'Mood Logged!',
       description: `You've logged your mood as: ${mood.label} ${mood.emoji}`,
@@ -46,9 +62,7 @@ export function WelcomeHeader({ userName }: { userName: string }) {
                 )}
                 onClick={() => handleMoodSelect(mood)}
                 aria-label={`Select mood: ${mood.label}`}
-              >
-                {mood.emoji}
-              </Button>
+              />
             ))}
           </div>
         </div>

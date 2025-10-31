@@ -4,68 +4,75 @@ import { GoalList } from "@/components/goals/goal-list";
 import { NewGoalDialog } from "@/components/goals/new-goal-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { mockGoals } from "@/lib/data";
-import type { Goal, SubTask } from "@/lib/types";
+import type { Goal } from "@/lib/types";
 import { Target } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
+import { useUser, useCollection, useMemoFirebase } from "@/firebase";
+import { collection, doc, addDoc, updateDoc, deleteDoc, type Firestore } from "firebase/firestore";
+import { useFirestore } from "@/firebase";
+import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 
-const calculateProgress = (subTasks: SubTask[]): number => {
-  if (subTasks.length === 0) return 0;
+const calculateProgress = (subTasks: Goal['subTasks']): number => {
+  if (!subTasks || subTasks.length === 0) return 0;
   const completed = subTasks.filter(st => st.completed).length;
   return Math.round((completed / subTasks.length) * 100);
 };
 
 export default function GoalsPage() {
-  const [goals, setGoals] = useState<Goal[]>(mockGoals.map(g => ({...g, progress: calculateProgress(g.subTasks)})));
+  const { user } = useUser();
+  const firestore = useFirestore();
 
-  useEffect(() => {
-    // Recalculate all progress when goals change
-    setGoals(currentGoals => currentGoals.map(g => ({
-        ...g,
-        progress: calculateProgress(g.subTasks)
-    })))
-  }, []);
+  const goalsCollectionRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return collection(firestore, `users/${user.uid}/goals`);
+  }, [firestore, user]);
 
-  const addGoal = (newGoal: Omit<Goal, 'id' | 'progress'>) => {
-    const goalWithProgress = {
-      ...newGoal,
-      id: `goal-${Date.now()}`,
-      progress: calculateProgress(newGoal.subTasks),
-    };
-    setGoals(prevGoals => [...prevGoals, goalWithProgress]);
+  const { data: goals = [], isLoading } = useCollection<Omit<Goal, 'id' | 'progress'>>(goalsCollectionRef);
+
+  const goalsWithProgress = useMemo(() => {
+    return goals.map(g => ({
+      ...g,
+      progress: calculateProgress(g.subTasks),
+    }));
+  }, [goals]);
+
+  const addGoal = async (newGoal: Omit<Goal, 'id' | 'progress'>) => {
+    if (!goalsCollectionRef) return;
+    addDocumentNonBlocking(goalsCollectionRef, newGoal);
   };
 
-  const deleteGoal = (goalId: string) => {
-    setGoals(prevGoals => prevGoals.filter(goal => goal.id !== goalId));
+  const deleteGoal = async (goalId: string) => {
+    if (!firestore || !user) return;
+    const docRef = doc(firestore, `users/${user.uid}/goals`, goalId);
+    deleteDocumentNonBlocking(docRef);
   };
 
-  const updateGoal = (updatedGoal: Goal) => {
-    const goalWithProgress = {
-      ...updatedGoal,
-      progress: calculateProgress(updatedGoal.subTasks),
-    };
-    setGoals(prevGoals => 
-      prevGoals.map(goal => goal.id === goalWithProgress.id ? goalWithProgress : goal)
-    );
+  const updateGoal = async (updatedGoal: Goal) => {
+    if (!firestore || !user) return;
+    const { id, ...goalData } = updatedGoal;
+    const docRef = doc(firestore, `users/${user.uid}/goals`, id);
+    // Omit progress from being saved as it's calculated
+    const { progress, ...rest } = goalData;
+    updateDocumentNonBlocking(docRef, rest);
   };
-  
+
   const toggleSubTask = (goalId: string, subTaskId: string) => {
-    setGoals(prevGoals =>
-      prevGoals.map(goal => {
-        if (goal.id === goalId) {
-          const newSubTasks = goal.subTasks.map(st =>
-            st.id === subTaskId ? { ...st, completed: !st.completed } : st
-          );
-          return { ...goal, subTasks: newSubTasks, progress: calculateProgress(newSubTasks) };
-        }
-        return goal;
-      })
+    const goal = goals.find(g => g.id === goalId);
+    if (!goal || !firestore || !user) return;
+
+    const newSubTasks = goal.subTasks.map(st =>
+      st.id === subTaskId ? { ...st, completed: !st.completed } : st
     );
+
+    const docRef = doc(firestore, `users/${user.uid}/goals`, goalId);
+    updateDocumentNonBlocking(docRef, { subTasks: newSubTasks });
   };
 
-  const overallProgress = goals.length > 0
-    ? Math.round(goals.reduce((acc, goal) => acc + goal.progress, 0) / goals.length)
-    : 0;
+  const overallProgress = useMemo(() => {
+    if (goalsWithProgress.length === 0) return 0;
+    const totalProgress = goalsWithProgress.reduce((acc, goal) => acc + goal.progress, 0);
+    return Math.round(totalProgress / goalsWithProgress.length);
+  }, [goalsWithProgress]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -87,12 +94,16 @@ export default function GoalsPage() {
           </CardContent>
         </Card>
 
-        <GoalList 
-          goals={goals} 
-          onDeleteGoal={deleteGoal} 
-          onUpdateGoal={updateGoal}
-          onToggleSubTask={toggleSubTask}
-        />
+        {isLoading ? (
+          <p>Loading goals...</p>
+        ) : (
+          <GoalList
+            goals={goalsWithProgress}
+            onDeleteGoal={deleteGoal}
+            onUpdateGoal={updateGoal}
+            onToggleSubTask={toggleSubTask}
+          />
+        )}
       </div>
     </div>
   );

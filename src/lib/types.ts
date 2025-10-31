@@ -1,4 +1,5 @@
 import { type LucideIcon } from 'lucide-react';
+import { type Timestamp } from 'firebase/firestore';
 
 export type User = {
   id: string;
@@ -46,7 +47,8 @@ export type Goal = {
   category: 'Academic' | 'Fitness' | 'Mental Health' | 'Personal';
   description?: string;
   subTasks: SubTask[];
-  progress: number; // This will be calculated from subTasks
+  progress: number; // This is calculated client-side, not stored in Firestore
+  userProfileId: string;
 };
 
 export type Badge = {
@@ -63,9 +65,27 @@ export type AnalyzeJournalSentimentOutput = {
   summary: string;
 };
 
+// Represents the data fetched from Firestore, including ID
 export type JournalEntry = {
     id: string;
     content: string;
-    createdAt: Date;
+    createdAt: Timestamp; // Firestore timestamp
     sentiment?: AnalyzeJournalSentimentOutput | null;
+    userProfileId: string;
+};
+
+// Represents the data structure for creating a new entry in Firestore
+export type JournalEntryData = {
+    content: string;
+    createdAt: any; // Can be serverTimestamp()
+    sentiment?: AnalyzeJournalSentimentOutput | null;
+    userProfileId: string;
+}
+
+export type ChatMessage = {
+  id?: string;
+  role: 'user' | 'model';
+  content: string;
+  timestamp?: Timestamp;
+  userProfileId: string;
 };

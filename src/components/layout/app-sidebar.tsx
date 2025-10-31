@@ -27,10 +27,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { mockUser } from '@/lib/data';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useAuth, useUser } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -107,7 +110,20 @@ export function AppSidebar() {
 }
 
 function UserMenu() {
+  const { user } = useUser();
+  const auth = useAuth();
+  const router = useRouter();
   const userAvatar = PlaceHolderImages.find((p) => p.id === 'user-avatar');
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -115,18 +131,18 @@ function UserMenu() {
           <div className="flex items-center w-full gap-2">
             <Avatar className="w-8 h-8">
               <AvatarImage
-                src={mockUser.avatarUrl}
-                alt={mockUser.name}
+                src={user.photoURL || userAvatar?.imageUrl}
+                alt={user.displayName || 'User'}
                 data-ai-hint={userAvatar?.imageHint}
               />
               <AvatarFallback>
-                {mockUser.name.charAt(0).toUpperCase()}
+                {user.email ? user.email.charAt(0).toUpperCase() : 'U'}
               </AvatarFallback>
             </Avatar>
             <div className="text-left">
-              <p className="text-sm font-medium leading-none">{mockUser.name}</p>
+              <p className="text-sm font-medium leading-none">{user.displayName || user.email}</p>
               <p className="text-xs leading-none text-muted-foreground">
-                {mockUser.email}
+                {user.email}
               </p>
             </div>
           </div>
@@ -135,9 +151,9 @@ function UserMenu() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{mockUser.name}</p>
+            <p className="text-sm font-medium leading-none">{user.displayName || user.email}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {mockUser.email}
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -147,7 +163,7 @@ function UserMenu() {
           Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="w-4 h-4 mr-2" />
           Log out
         </DropdownMenuItem>

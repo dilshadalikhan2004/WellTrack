@@ -22,13 +22,15 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import type { Goal, SubTask } from '@/lib/types';
+import { useUser } from '@/firebase';
 import { PlusCircle, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 
-type NewGoal = Omit<Goal, 'id' | 'progress'>;
+type NewGoalData = Omit<Goal, 'id' | 'progress'>;
 
-export function NewGoalDialog({ onAddGoal }: { onAddGoal: (goal: NewGoal) => void }) {
+export function NewGoalDialog({ onAddGoal }: { onAddGoal: (goal: NewGoalData) => void }) {
   const { toast } = useToast();
+  const { user } = useUser();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<Goal['category'] | ''>('');
@@ -57,7 +59,7 @@ export function NewGoalDialog({ onAddGoal }: { onAddGoal: (goal: NewGoal) => voi
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!title || !category) {
+    if (!title || !category || !user) {
         toast({
             variant: 'destructive',
             title: 'Missing fields',
@@ -72,7 +74,7 @@ export function NewGoalDialog({ onAddGoal }: { onAddGoal: (goal: NewGoal) => voi
       completed: false,
     }));
 
-    onAddGoal({ title, category, description, subTasks: finalSubTasks });
+    onAddGoal({ title, category, description, subTasks: finalSubTasks, userProfileId: user.uid });
     
     toast({
       title: 'Goal Created!',

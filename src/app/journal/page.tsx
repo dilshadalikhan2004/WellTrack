@@ -7,18 +7,31 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Save, Sparkles, NotebookPen, Trash2 } from 'lucide-react';
 import { analyzeJournalSentiment, type AnalyzeJournalSentimentOutput } from '@/ai/flows/analyze-journal-sentiment';
-import type { JournalEntry } from '@/lib/types';
+import type { JournalEntry, JournalEntryData } from '@/lib/types';
 import { format } from 'date-fns';
+import { useCollection, useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, Timestamp, serverTimestamp } from 'firebase/firestore';
+import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { doc } from 'firebase/firestore';
+
 
 export default function JournalPage() {
   const [entry, setEntry] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sentiment, setSentiment] = useState<AnalyzeJournalSentimentOutput | null>(null);
-  const [savedEntries, setSavedEntries] = useState<JournalEntry[]>([]);
   const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const entriesCollectionRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return collection(firestore, `users/${user.uid}/journal_entries`);
+  }, [firestore, user]);
+
+  const { data: savedEntries = [], isLoading: entriesLoading } = useCollection<JournalEntryData>(entriesCollectionRef);
 
   const handleSave = () => {
-    if (!entry.trim()) {
+    if (!entry.trim() || !entriesCollectionRef) {
         toast({
             variant: 'destructive',
             title: 'Empty Entry',
@@ -27,14 +40,16 @@ export default function JournalPage() {
         return;
     }
 
-    const newEntry: JournalEntry = {
-        id: `entry-${Date.now()}`,
+    const newEntry: JournalEntryData = {
         content: entry,
-        createdAt: new Date(),
+        // Firebase will convert this to a Timestamp
+        createdAt: serverTimestamp(),
         sentiment: sentiment,
+        userProfileId: user!.uid,
     };
 
-    setSavedEntries(prevEntries => [newEntry, ...prevEntries]);
+    addDocumentNonBlocking(entriesCollectionRef, newEntry);
+
     setEntry('');
     setSentiment(null);
 
@@ -45,7 +60,9 @@ export default function JournalPage() {
   };
 
   const handleDelete = (id: string) => {
-    setSavedEntries(prevEntries => prevEntries.filter(e => e.id !== id));
+    if (!firestore || !user) return;
+    const docRef = doc(firestore, `users/${user.uid}/journal_entries`, id);
+    deleteDocumentNonBlocking(docRef);
     toast({
         title: 'Entry Deleted',
         description: 'Your journal entry has been removed.',
@@ -77,6 +94,13 @@ export default function JournalPage() {
       setIsLoading(false);
     }
   };
+  
+  const sortedEntries = [...savedEntries].sort((a, b) => {
+    const dateA = a.createdAt instanceof Timestamp ? a.createdAt.toDate() : new Date();
+    const dateB = b.createdAt instanceof Timestamp ? b.createdAt.toDate() : new Date();
+    return dateB.getTime() - dateA.getTime();
+  });
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -102,7 +126,7 @@ export default function JournalPage() {
               className="min-h-[250px] text-base"
             />
             <div className="flex items-center justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={handleSave} disabled={!entry.trim()}>
+              <Button variant="outline" onClick={handleSave} disabled={!entry.trim() || !user}>
                 <Save className="w-4 h-4 mr-2" />
                 Save Entry
               </Button>
@@ -140,19 +164,21 @@ export default function JournalPage() {
             </CardContent>
           </Card>
         )}
+        
+        {entriesLoading && <p>Loading entries...</p>}
 
-        {savedEntries.length > 0 && (
+        {sortedEntries.length > 0 && (
           <Card>
             <CardHeader>
                 <CardTitle>Past Entries</CardTitle>
                 <CardDescription>Review your previous journal entries.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                {savedEntries.map((savedEntry) => (
+                {sortedEntries.map((savedEntry) => (
                     <div key={savedEntry.id} className="p-4 border rounded-lg bg-background">
                         <div className="flex items-center justify-between mb-2">
                            <p className="text-sm font-semibold text-muted-foreground">
-                             {format(savedEntry.createdAt, 'MMMM d, yyyy - h:mm a')}
+                             {savedEntry.createdAt instanceof Timestamp ? format(savedEntry.createdAt.toDate(), 'MMMM d, yyyy - h:mm a') : 'Just now'}
                            </p>
                            <Button variant="ghost" size="icon" className="w-6 h-6" onClick={() => handleDelete(savedEntry.id)}>
                                <Trash2 className="w-4 h-4 text-muted-foreground" />
