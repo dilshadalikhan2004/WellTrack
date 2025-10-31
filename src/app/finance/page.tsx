@@ -8,7 +8,7 @@ import { NewTransactionDialog } from '@/components/finance/new-transaction-dialo
 import { TransactionList } from '@/components/finance/transaction-list';
 import { FinancialAnxietyMonitor } from '@/components/finance/financial-anxiety-monitor';
 import { useCollection, useUser, useFirestore, useMemoFirebase, useDoc } from '@/firebase';
-import { collection, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
+import { collection, serverTimestamp, doc, updateDoc, increment, setDoc } from 'firebase/firestore';
 import type { EmergencyFund, FinancialTransaction } from '@/lib/types';
 import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { EditBalanceDialog } from '@/components/finance/edit-balance-dialog';
@@ -33,21 +33,23 @@ export default function FinancePage() {
   const { data: balanceData, isLoading: balanceLoading } = useDoc<EmergencyFund>(balanceDocRef);
   
 
-  const handleAddTransaction = (data: Omit<FinancialTransaction, 'id' | 'userProfileId' | 'timestamp'>) => {
+  const handleAddTransaction = async (data: Omit<FinancialTransaction, 'id' | 'userProfileId' | 'timestamp'>) => {
     if (!transactionsCollectionRef || !user || !firestore || !balanceDocRef) return;
     addDocumentNonBlocking(transactionsCollectionRef, { ...data, userProfileId: user.uid, timestamp: serverTimestamp() });
     
     // Update balance
     const amount = data.type === 'income' ? data.amount : -data.amount;
-    updateDoc(balanceDocRef, { currentAmount: increment(amount) }).catch(async () => {
-      // If the doc doesn't exist, create it with the current transaction amount.
-      await setDoc(balanceDocRef, { 
-        currentAmount: amount, 
-        goal: 0, 
-        userProfileId: user.uid,
-        id: user.uid,
-      });
-    });
+    try {
+        await updateDoc(balanceDocRef, { currentAmount: increment(amount) });
+    } catch (e) {
+        // If the doc doesn't exist, create it.
+        await setDoc(balanceDocRef, { 
+            currentAmount: amount, 
+            goal: 0, 
+            userProfileId: user.uid,
+            id: user.uid,
+        }, { merge: true });
+    }
   };
   
   const { totalExpenses } = useMemo(() => {
