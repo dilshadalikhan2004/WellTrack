@@ -41,7 +41,7 @@ export function WelcomeHeader({ userName }: { userName: string }) {
       <CardContent className="p-6">
         <div className="flex flex-col items-start gap-4 md:flex-row md:items-center">
           <div className="flex-1">
-            <h2 className="text-2xl font-bold font-headline">
+            <h2 className="text-2xl font-bold">
               Good Morning, {userName}!
             </h2>
             <p className="text-muted-foreground">
@@ -62,7 +62,9 @@ export function WelcomeHeader({ userName }: { userName: string }) {
                 )}
                 onClick={() => handleMoodSelect(mood)}
                 aria-label={`Select mood: ${mood.label}`}
-              />
+              >
+                {mood.emoji}
+              </Button>
             ))}
           </div>
         </div>
