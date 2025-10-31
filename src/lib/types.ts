@@ -14,14 +14,21 @@ export type User = {
 };
 
 export type Habit = {
-  id:string;
+  id: string;
   name: string;
   category: 'Physical' | 'Mental' | 'Academic';
-  icon: LucideIcon;
-  goal: number;
-  unit: string;
-  completed: boolean;
+  goal: string;
+  frequency: string;
+  userProfileId: string;
 };
+
+export type HabitLog = {
+    id: string;
+    habitId: string;
+    timestamp: Timestamp;
+    notes?: string;
+    userProfileId: string;
+}
 
 export type MoodOption = {
   label: 'Anxious' | 'Stressed' | 'Happy' | 'Sad' | 'Motivated' | 'Calm';
@@ -90,3 +97,11 @@ export type ChatMessage = {
   timestamp?: Timestamp;
   userProfileId: string;
 };
+
+export type Gamification = {
+    id: string;
+    userProfileId: string;
+    points: number;
+    level: number;
+    badges: string[]; // Array of badge IDs
+}

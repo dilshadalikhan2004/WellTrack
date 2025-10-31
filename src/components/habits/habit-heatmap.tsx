@@ -1,16 +1,8 @@
 'use client';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import type { HabitLog } from '@/lib/types';
 import { eachDayOfInterval, format, startOfMonth, endOfMonth, getDay, isSameDay } from 'date-fns';
-
-const habitData = Array.from({ length: 120 }, (_, i) => {
-  const date = new Date();
-  date.setDate(date.getDate() - i);
-  return {
-    date,
-    count: Math.floor(Math.random() * 6), // 0-5 habits completed
-  };
-});
 
 const getMonthData = (date: Date) => {
   const start = startOfMonth(date);
@@ -26,11 +18,21 @@ const months = Array.from({ length: 4 }, (_, i) => {
     const d = new Date();
     d.setMonth(d.getMonth() - i);
     return d;
-  }).reverse();
+}).reverse();
 
-const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+export function HabitHeatmap({ habitLogs }: { habitLogs: HabitLog[] }) {
+  const data = habitLogs.map(log => ({
+    date: log.timestamp.toDate(),
+    count: 1 // Represent each log as 1 completion
+  }));
 
-export function HabitHeatmap() {
+  const dailyCounts = data.reduce((acc, curr) => {
+    const day = format(curr.date, 'yyyy-MM-dd');
+    acc[day] = (acc[day] || 0) + curr.count;
+    return acc;
+  }, {} as Record<string, number>);
+
+
   return (
     <TooltipProvider>
       <div className="flex gap-4 overflow-x-auto">
@@ -50,8 +52,8 @@ export function HabitHeatmap() {
               {getMonthData(month).map((day, index) => {
                 if (!day) return <div key={index} className="w-4 h-4" />;
                 
-                const data = habitData.find(d => isSameDay(d.date, day));
-                const count = data ? data.count : 0;
+                const dayString = format(day, 'yyyy-MM-dd');
+                const count = dailyCounts[dayString] || 0;
                 
                 let colorClass = 'bg-muted/50';
                 if (count > 0) colorClass = 'bg-primary/20';
