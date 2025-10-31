@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { Habit } from "@/lib/types";
 import { EditHabitDialog } from "./edit-habit-dialog";
 import { Book, Brain, Dumbbell } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 
 type HabitListProps = {
-    habits: Habit[];
+    habits: Habit[] | null;
     onUpdateHabit: (habit: Habit) => void;
     onDeleteHabit: (habitId: string) => void;
 }
@@ -19,6 +20,22 @@ const categoryIcons: Record<Habit['category'], React.ElementType> = {
 
 
 export function HabitList({ habits, onUpdateHabit, onDeleteHabit }: HabitListProps) {
+    if (!habits) {
+        return (
+             <Card>
+                <CardHeader>
+                    <CardTitle>Your Habits</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        <Skeleton className="h-16 w-full" />
+                        <Skeleton className="h-16 w-full" />
+                    </div>
+                </CardContent>
+            </Card>
+        )
+    }
+
     if (habits.length === 0) {
         return (
             <Card>
