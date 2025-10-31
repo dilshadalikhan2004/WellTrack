@@ -1,0 +1,256 @@
+/**
+ * @fileoverview Firestore Security Rules for WellTrack application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for personal data while allowing public read access to community forum data.
+ * User-specific data (habits, mood logs, journal entries, etc.) is only accessible to the authenticated user.
+ * Community forum data is publicly readable, but write access to forums and posts is restricted.
+ *
+ * Data Structure:
+ * - /users/{userId}/user_profile: User profile information.
+ * - /users/{userId}/habits/{habitId}: Habits tracked by the user.
+ * - /users/{userId}/habit_logs/{habitLogId}: Log entries for each habit.
+ * - /users/{userId}/mood_logs/{moodLogId}: Mood log entries.
+ * - /users/{userId}/journal_entries/{journalEntryId}: Journal entries.
+ * - /users/{userId}/routines/{routineId}: Routines created by the user.
+ * - /users/{userId}/goals/{goalId}: Goals set by the user.
+ * - /users/{userId}/notifications/{notificationId}: Notifications for the user.
+ * - /community_forums/{communityForumId}: Community forum data.
+ * - /forum_posts/{forumPostId}: Forum posts.
+ *
+ * Key Security Decisions:
+ * - User data is strictly private and only accessible to the owning user.
+ * - Community forum data is publicly readable.
+ * - Listing of user documents in `/users/{userId}` is allowed.
+ * - No schema validation is enforced in this prototyping phase.
+ *
+ * Denormalization for Authorization:
+ * - Forum posts include the `userProfileId` to enable checking ownership without additional reads.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Checks if the request is made by an authenticated user.
+     * @principle Requires authentication for all non-public operations.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user ID matches the provided user ID.
+     * @principle Enforces document ownership for user-specific data.
+     * @param {string} userId The user ID to compare against the authenticated user's ID.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the authenticated user is the owner of an existing document.
+     * @principle Prevents modification or deletion of non-existent documents.
+     * @param {string} userId The user ID to compare against the authenticated user's ID.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Rule for /users/{userId}/user_profile collection.
+     * @path /users/{userId}/user_profile
+     * @allow (create) Authenticated user with matching userId can create their profile.
+     * @deny (create) Authenticated user with mismatched userId cannot create a profile.
+     * @allow (get, list, update, delete) Authenticated user with matching userId can access their profile.
+     * @deny (get, list, update, delete) Authenticated user with mismatched userId cannot access the profile.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/user_profile {
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for /users/{userId}/habits/{habitId} collection.
+     * @path /users/{userId}/habits/{habitId}
+     * @allow (create) Authenticated user with matching userId can create habits.
+     * @deny (create) Authenticated user with mismatched userId cannot create habits.
+     * @allow (get, list, update, delete) Authenticated user with matching userId can access their habits.
+     * @deny (get, list, update, delete) Authenticated user with mismatched userId cannot access the habits.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/habits/{habitId} {
+      allow create: if isOwner(userId) && request.resource.data.userProfileId == userId;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for /users/{userId}/habit_logs/{habitLogId} collection.
+     * @path /users/{userId}/habit_logs/{habitLogId}
+     * @allow (create) Authenticated user with matching userId can create habit logs.
+     * @deny (create) Authenticated user with mismatched userId cannot create habit logs.
+     * @allow (get, list, update, delete) Authenticated user with matching userId can access their habit logs.
+     * @deny (get, list, update, delete) Authenticated user with mismatched userId cannot access the habit logs.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/habit_logs/{habitLogId} {
+      allow create: if isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for /users/{userId}/mood_logs/{moodLogId} collection.
+     * @path /users/{userId}/mood_logs/{moodLogId}
+     * @allow (create) Authenticated user with matching userId can create mood logs.
+     * @deny (create) Authenticated user with mismatched userId cannot create mood logs.
+     * @allow (get, list, update, delete) Authenticated user with matching userId can access their mood logs.
+     * @deny (get, list, update, delete) Authenticated user with mismatched userId cannot access the mood logs.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/mood_logs/{moodLogId} {
+      allow create: if isOwner(userId) && request.resource.data.userProfileId == userId;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for /users/{userId}/journal_entries/{journalEntryId} collection.
+     * @path /users/{userId}/journal_entries/{journalEntryId}
+     * @allow (create) Authenticated user with matching userId can create journal entries.
+     * @deny (create) Authenticated user with mismatched userId cannot create journal entries.
+     * @allow (get, list, update, delete) Authenticated user with matching userId can access their journal entries.
+     * @deny (get, list, update, delete) Authenticated user with mismatched userId cannot access the journal entries.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/journal_entries/{journalEntryId} {
+      allow create: if isOwner(userId) && request.resource.data.userProfileId == userId;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for /users/{userId}/routines/{routineId} collection.
+     * @path /users/{userId}/routines/{routineId}
+     * @allow (create) Authenticated user with matching userId can create routines.
+     * @deny (create) Authenticated user with mismatched userId cannot create routines.
+     * @allow (get, list, update, delete) Authenticated user with matching userId can access their routines.
+     * @deny (get, list, update, delete) Authenticated user with mismatched userId cannot access the routines.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/routines/{routineId} {
+      allow create: if isOwner(userId) && request.resource.data.userProfileId == userId;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for /users/{userId}/goals/{goalId} collection.
+     * @path /users/{userId}/goals/{goalId}
+     * @allow (create) Authenticated user with matching userId can create goals.
+     * @deny (create) Authenticated user with mismatched userId cannot create goals.
+     * @allow (get, list, update, delete) Authenticated user with matching userId can access their goals.
+     * @deny (get, list, update, delete) Authenticated user with mismatched userId cannot access the goals.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/goals/{goalId} {
+      allow create: if isOwner(userId) && request.resource.data.userProfileId == userId;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for /users/{userId}/notifications/{notificationId} collection.
+     * @path /users/{userId}/notifications/{notificationId}
+     * @allow (create) Authenticated user with matching userId can create notifications.
+     * @deny (create) Authenticated user with mismatched userId cannot create notifications.
+     * @allow (get, list, update, delete) Authenticated user with matching userId can access their notifications.
+     * @deny (get, list, update, delete) Authenticated user with mismatched userId cannot access the notifications.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/notifications/{notificationId} {
+      allow create: if isOwner(userId) && request.resource.data.userProfileId == userId;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for /community_forums/{communityForumId} collection.
+     * @path /community_forums/{communityForumId}
+     * @allow (get, list) Any user can read community forum data.
+     * @deny (create, update, delete) Write access is not allowed in this prototype phase. // TODO: Add role-based access control for admins.
+     * @principle Allows public read access to community forum data.
+     */
+    match /community_forums/{communityForumId} {
+      allow get, list: if true;
+      allow create, update, delete: if false; // TODO: Add role-based access control for admins.
+    }
+
+    /**
+     * @description Rule for /forum_posts/{forumPostId} collection.
+     * @path /forum_posts/{forumPostId}
+     * @allow (get, list) Any user can read forum posts.
+     * @allow (create) Any authenticated user can create forum posts.
+     * @allow (update, delete) Only the author can update or delete their own posts.
+     * @principle Allows public read access to forum posts and restricts write access to the author.
+     */
+    match /forum_posts/{forumPostId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.userProfileId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.userProfileId == request.auth.uid && resource != null;
+    }
+
+    /**
+     * @description Rule for /users/{userId}/gamification collection.
+     * @path /users/{userId}/gamification
+     * @allow (create) Authenticated user with matching userId can create gamification data.
+     * @deny (create) Authenticated user with mismatched userId cannot create gamification data.
+     * @allow (get, list, update, delete) Authenticated user with matching userId can access their gamification data.
+     * @deny (get, list, update, delete) Authenticated user with mismatched userId cannot access the gamification data.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/gamification {
+      allow create: if isOwner(userId) && request.resource.data.userProfileId == userId;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rule for /users/{userId}/stress_levels/{stressLevelId} collection.
+     * @path /users/{userId}/stress_levels/{stressLevelId}
+     * @allow (create) Authenticated user with matching userId can create stress level entries.
+     * @deny (create) Authenticated user with mismatched userId cannot create stress level entries.
+     * @allow (get, list, update, delete) Authenticated user with matching userId can access their stress level entries.
+     * @deny (get, list, update, delete) Authenticated user with mismatched userId cannot access the stress level entries.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/stress_levels/{stressLevelId} {
+      allow create: if isOwner(userId) && request.resource.data.userProfileId == userId;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow update: if isExistingOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}
