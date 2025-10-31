@@ -32,9 +32,9 @@ export function AppContent({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthGate>
-      <div className="relative flex min-h-screen">
+      <div className="relative flex flex-col min-h-screen">
         <AppSidebar />
-        <main className={cn('flex-1 md:pl-72')}>
+        <main className={cn('flex-1')}>
           {children}
         </main>
         <FloatingCounselor />

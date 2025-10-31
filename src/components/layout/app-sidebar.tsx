@@ -75,9 +75,8 @@ function NavContent() {
 
 export function AppSidebar() {
   return (
-    <>
-      {/* Mobile Sidebar (Hamburger Menu) */}
-      <header className="sticky top-0 z-20 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:hidden">
+    <header className="sticky top-0 z-20 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm">
+      <div className='flex items-center gap-4'>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="shrink-0">
@@ -93,15 +92,10 @@ export function AppSidebar() {
         <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
             <Logo />
         </Link>
-        
-        <div className='w-9'/>
-      </header>
-
-      {/* Desktop Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-10 hidden w-72 border-r bg-card md:block">
-        <NavContent />
-      </aside>
-    </>
+      </div>
+      
+      <UserMenu />
+    </header>
   );
 }
 
@@ -122,15 +116,10 @@ function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="w-full h-auto py-2 justify-start">
-          <div className="flex items-center w-full gap-2">
-            <div className="text-left">
-              <p className="text-sm font-medium leading-none">{user.displayName || user.email}</p>
-              <p className="text-xs leading-none text-muted-foreground">
-                {user.email}
-              </p>
+        <Button variant="ghost" className="relative w-10 h-10 rounded-full">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary">
+                {user.displayName?.charAt(0) || user.email?.charAt(0)}
             </div>
-          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
