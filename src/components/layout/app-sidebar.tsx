@@ -158,9 +158,11 @@ function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Settings className="w-4 h-4 mr-2" />
-          Settings
+        <DropdownMenuItem asChild>
+          <Link href="/profile">
+            <Settings className="w-4 h-4 mr-2" />
+            Profile & Settings
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
