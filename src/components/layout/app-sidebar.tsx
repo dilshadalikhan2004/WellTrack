@@ -78,8 +78,8 @@ function NavContent() {
 export function AppSidebar() {
   return (
     <>
-      {/* Mobile Sidebar */}
-      <div className="sticky top-0 z-20 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:hidden">
+      {/* Mobile Sidebar (Hamburger Menu) */}
+      <header className="sticky top-0 z-20 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:hidden">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="shrink-0">
@@ -91,13 +91,13 @@ export function AppSidebar() {
              <NavContent />
           </SheetContent>
         </Sheet>
-        <div className="flex items-center justify-center flex-1">
-            <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                <Logo />
-            </Link>
-        </div>
+        
+        <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+            <Logo />
+        </Link>
+        
         <div className='w-9'/>
-      </div>
+      </header>
 
       {/* Desktop Sidebar */}
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-72 border-r bg-card md:block">
@@ -111,7 +111,6 @@ function UserMenu() {
   const { user } = useUser();
   const auth = useAuth();
   const router = useRouter();
-  const userAvatar = PlaceHolderImages.find((p) => p.id === 'user-avatar');
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -121,6 +120,8 @@ function UserMenu() {
   if (!user) {
     return null;
   }
+  
+  const userAvatar = PlaceHolderImages.find((p) => p.id === 'user-avatar');
 
   return (
     <DropdownMenu>
