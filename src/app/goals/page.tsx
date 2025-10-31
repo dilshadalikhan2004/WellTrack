@@ -30,7 +30,7 @@ export default function GoalsPage() {
   const { data: goals = [], isLoading } = useCollection<Omit<Goal, 'id' | 'progress'>>(goalsCollectionRef);
 
   const goalsWithProgress = useMemo(() => {
-    return goals.map(g => ({
+    return (goals || []).map(g => ({
       ...g,
       progress: calculateProgress(g.subTasks),
     }));

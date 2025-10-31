@@ -33,7 +33,7 @@ export function ActiveGoals({ className }: { className?: string }) {
   const { data: goals = [], isLoading } = useCollection<Omit<Goal, 'id'| 'progress'>>(goalsCollectionRef);
 
   const goalsWithProgress = useMemo(() => {
-    return goals.map(goal => ({
+    return (goals || []).map(goal => ({
       ...goal,
       progress: calculateProgress(goal.subTasks)
     })).slice(0, 3); // show latest 3 goals
