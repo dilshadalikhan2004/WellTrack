@@ -143,7 +143,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-10 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6">
+      <header className="sticky top-0 z-10 hidden h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6 md:flex md:items-center">
         <h1 className="text-xl font-semibold">Profile & Settings</h1>
       </header>
       <main className="flex-1 p-4 bg-muted/40 md:p-8">
@@ -185,7 +185,7 @@ export default function ProfilePage() {
                     placeholder="Your Name"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="age">Age</Label>
                       <Input

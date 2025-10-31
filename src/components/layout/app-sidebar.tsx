@@ -15,11 +15,12 @@ import {
   NotebookPen,
   Landmark,
   BookHeart,
+  Menu,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { Separator } from '../ui/separator';
@@ -36,8 +37,23 @@ const navItems = [
   { href: '/insights', label: 'Insights', icon: BrainCircuit },
 ];
 
-function NavContent() {
+function NavLink({ href, label, icon: Icon }: (typeof navItems)[0]) {
   const pathname = usePathname();
+  return (
+     <Link href={href} passHref>
+        <Button
+        variant={pathname === href ? 'secondary' : 'ghost'}
+        className="justify-start w-full"
+        as="a"
+        >
+        <Icon className="w-4 h-4 mr-2" />
+        {label}
+        </Button>
+    </Link>
+  )
+}
+
+function NavContent() {
   const { user } = useUser();
   const auth = useAuth();
   const router = useRouter();
@@ -58,18 +74,7 @@ function NavContent() {
       </div>
       <nav className="flex-1 px-2 py-4 space-y-1">
         {navItems.map((item) => (
-          <SheetClose asChild key={item.href}>
-            <Link href={item.href} passHref>
-              <Button
-                variant={pathname === item.href ? 'secondary' : 'ghost'}
-                className="justify-start w-full"
-                as="a"
-              >
-                <item.icon className="w-4 h-4 mr-2" />
-                {item.label}
-              </Button>
-            </Link>
-          </SheetClose>
+          <NavLink key={item.href} {...item} />
         ))}
       </nav>
       {user && (
@@ -81,14 +86,12 @@ function NavContent() {
               {user.email}
             </p>
           </div>
-           <SheetClose asChild>
-            <Button variant="ghost" className="justify-start w-full" asChild>
-              <Link href="/profile">
-                <Settings className="w-4 h-4 mr-2" />
-                Profile & Settings
-              </Link>
-            </Button>
-          </SheetClose>
+            <Link href="/profile" passHref>
+                <Button variant="ghost" className="justify-start w-full" as="a">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Profile & Settings
+                </Button>
+            </Link>
           <Button variant="ghost" className="justify-start w-full" onClick={handleLogout}>
             <LogOut className="w-4 h-4 mr-2" />
             Log out
@@ -101,31 +104,31 @@ function NavContent() {
 
 export function AppSidebar() {
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm">
-      <div className='flex items-center gap-4'>
+    <>
+      {/* Mobile Header and Sheet */}
+      <header className="sticky top-0 z-30 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:hidden">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="shrink-0 rounded-full">
-               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20 text-primary">
-                D
-               </div>
+            <Button variant="ghost" size="icon">
+              <Menu className="w-6 h-6" />
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0">
-             <SheetHeader>
-                <SheetTitle className='sr-only'>Main Navigation</SheetTitle>
-             </SheetHeader>
+          <SheetContent side="left" className="flex flex-col p-0">
              <NavContent />
           </SheetContent>
         </Sheet>
-        
-        <div className="text-lg font-semibold font-headline">
-          WellTrack
+         <div className="flex justify-center flex-1">
+            <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+                <Logo />
+            </Link>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Desktop Sidebar */}
+      <aside className="fixed top-0 left-0 z-40 hidden h-screen border-r md:block w-60">
+        <NavContent />
+      </aside>
+    </>
   );
 }
-
-    

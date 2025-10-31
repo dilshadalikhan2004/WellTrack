@@ -34,9 +34,11 @@ export function AppContent({ children }: { children: React.ReactNode }) {
     <AuthGate>
       <div className="relative flex flex-col min-h-screen">
         <AppSidebar />
-        <main className={cn('flex-1')}>
-          {children}
-        </main>
+        <div className="md:pl-60">
+            <main className={cn('flex-1')}>
+            {children}
+            </main>
+        </div>
         <FloatingCounselor />
       </div>
     </AuthGate>

@@ -37,8 +37,8 @@ export function HabitHeatmap({ habitLogs }: { habitLogs: HabitLog[] | null }) {
 
   return (
     <TooltipProvider>
-      <div className="flex gap-4 overflow-x-auto">
-        <div className="flex flex-col text-xs text-muted-foreground gap-1 pt-6">
+      <div className="flex justify-center gap-4">
+        <div className="flex-col text-xs text-muted-foreground gap-1 pt-6 hidden sm:flex">
             <div className="h-4"></div>
             <div className="h-4">Mon</div>
             <div className="h-4"></div>
@@ -52,7 +52,7 @@ export function HabitHeatmap({ habitLogs }: { habitLogs: HabitLog[] | null }) {
             <div className="mb-2 text-sm font-medium">{format(month, 'MMM')}</div>
             <div className="grid grid-flow-col grid-rows-7 gap-1">
               {getMonthData(month).map((day, index) => {
-                if (!day) return <div key={index} className="w-4 h-4" />;
+                if (!day) return <div key={index} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />;
                 
                 const dayString = format(day, 'yyyy-MM-dd');
                 const count = dailyCounts[dayString] || 0;
@@ -67,7 +67,7 @@ export function HabitHeatmap({ habitLogs }: { habitLogs: HabitLog[] | null }) {
                 return (
                   <Tooltip key={day.toString()}>
                     <TooltipTrigger asChild>
-                      <div className={cn('w-4 h-4 rounded-sm', colorClass)} />
+                      <div className={cn('w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-sm', colorClass)} />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{count} habits on {format(day, 'MMM d, yyyy')}</p>

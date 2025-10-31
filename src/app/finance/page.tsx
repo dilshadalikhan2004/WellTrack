@@ -154,7 +154,7 @@ export default function FinancePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6">
+      <header className="sticky top-0 z-10 items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6 hidden md:flex">
         <h1 className="flex items-center gap-2 text-xl font-semibold">
             <Landmark className="w-6 h-6" />
             Financial Wellness

@@ -134,7 +134,7 @@ const mockResources: Resource[] = [
 export default function LibraryPage() {
     return (
         <div className="flex flex-col min-h-screen">
-            <header className="sticky top-0 z-10 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6">
+            <header className="sticky top-0 z-10 hidden h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6 md:flex md:items-center">
                 <h1 className="flex items-center gap-2 text-xl font-semibold">
                     <BookHeart className="w-6 h-6" />
                     Mental Health Library
@@ -150,7 +150,7 @@ export default function LibraryPage() {
                     </CardHeader>
                     <CardContent>
                         <Tabs defaultValue="infographics" className="w-full">
-                            <TabsList className="grid w-full grid-cols-1 mb-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
+                            <TabsList className="grid w-full h-auto grid-cols-2 p-2 mb-4 sm:grid-cols-4 lg:grid-cols-7">
                                 <TabsTrigger value="infographics"><Info className="w-4 h-4 mr-2" /> Infographics</TabsTrigger>
                                 <TabsTrigger value="videos"><Video className="w-4 h-4 mr-2" /> Videos</TabsTrigger>
                                 <TabsTrigger value="podcasts"><Mic className="w-4 h-4 mr-2" /> Podcasts</TabsTrigger>

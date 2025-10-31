@@ -93,7 +93,7 @@ export default function HabitsPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-       <header className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6">
+       <header className="sticky top-0 z-10 items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6 hidden md:flex">
         <h1 className="text-xl font-semibold">Habit Tracking</h1>
         <NewHabitDialog onAddHabit={addHabit} />
       </header>
@@ -144,7 +144,7 @@ export default function HabitsPage() {
                     Your habit completion over the last few months. Darker shades mean more habits completed.
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="overflow-x-auto">
                     <HabitHeatmap habitLogs={habitLogs}/>
                 </CardContent>
             </Card>

@@ -106,7 +106,7 @@ export default function JournalPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="sticky top-0 z-10 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6">
+      <header className="sticky top-0 z-10 items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6 hidden md:flex">
         <h1 className="flex items-center gap-2 text-xl font-semibold">
             <NotebookPen className="w-6 h-6" />
             My Journal
@@ -127,7 +127,7 @@ export default function JournalPage() {
               placeholder="What's on your mind today?"
               className="min-h-[250px] text-base"
             />
-            <div className="flex items-center justify-end gap-2 mt-4">
+            <div className="flex flex-col items-stretch justify-end gap-2 mt-4 sm:flex-row">
               <Button variant="outline" onClick={handleSave} disabled={!entry.trim() || !user}>
                 <Save className="w-4 h-4 mr-2" />
                 Save Entry
