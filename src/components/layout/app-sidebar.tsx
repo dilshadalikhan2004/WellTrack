@@ -17,10 +17,9 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/icons';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
-import { Avatar, AvatarFallback } from '../ui/avatar';
 import { Separator } from '../ui/separator';
 
 const navItems = [
@@ -55,16 +54,18 @@ function NavContent() {
       </div>
       <nav className="flex-1 px-2 py-4 space-y-1">
         {navItems.map((item) => (
-          <Link key={item.href} href={item.href} passHref>
-            <Button
-              variant={pathname === item.href ? 'secondary' : 'ghost'}
-              className="justify-start w-full"
-              as="a"
-            >
-              <item.icon className="w-4 h-4 mr-2" />
-              {item.label}
-            </Button>
-          </Link>
+          <SheetClose asChild key={item.href}>
+            <Link href={item.href} passHref>
+              <Button
+                variant={pathname === item.href ? 'secondary' : 'ghost'}
+                className="justify-start w-full"
+                as="a"
+              >
+                <item.icon className="w-4 h-4 mr-2" />
+                {item.label}
+              </Button>
+            </Link>
+          </SheetClose>
         ))}
       </nav>
       {user && (
@@ -76,12 +77,14 @@ function NavContent() {
               {user.email}
             </p>
           </div>
-          <Button variant="ghost" className="justify-start w-full" asChild>
-            <Link href="/profile">
-              <Settings className="w-4 h-4 mr-2" />
-              Profile & Settings
-            </Link>
-          </Button>
+           <SheetClose asChild>
+            <Button variant="ghost" className="justify-start w-full" asChild>
+              <Link href="/profile">
+                <Settings className="w-4 h-4 mr-2" />
+                Profile & Settings
+              </Link>
+            </Button>
+          </SheetClose>
           <Button variant="ghost" className="justify-start w-full" onClick={handleLogout}>
             <LogOut className="w-4 h-4 mr-2" />
             Log out
