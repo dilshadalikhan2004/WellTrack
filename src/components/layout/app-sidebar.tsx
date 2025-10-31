@@ -66,9 +66,6 @@ function NavContent() {
           </Link>
         ))}
       </nav>
-      <div className="p-2 mt-auto border-t">
-        <UserMenu />
-      </div>
     </div>
   );
 }
