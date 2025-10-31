@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -66,7 +65,7 @@ function NavContent() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full w-60">
       <div className="flex items-center h-16 px-4 border-b">
         <Link href="/">
           <Logo />
@@ -105,8 +104,7 @@ function NavContent() {
 export function AppSidebar() {
   return (
     <>
-      {/* Mobile Header and Sheet */}
-      <header className="sticky top-0 z-30 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:hidden">
+      <header className="sticky top-0 z-30 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -123,12 +121,9 @@ export function AppSidebar() {
                 <Logo />
             </Link>
         </div>
+        {/* Placeholder for right-side header items if needed */}
+        <div className="w-9 h-9" />
       </header>
-
-      {/* Desktop Sidebar */}
-      <aside className="fixed top-0 left-0 z-40 hidden h-screen border-r md:block w-60">
-        <NavContent />
-      </aside>
     </>
   );
 }

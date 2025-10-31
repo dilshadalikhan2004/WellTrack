@@ -34,7 +34,7 @@ export function AppContent({ children }: { children: React.ReactNode }) {
     <AuthGate>
       <div className="relative flex flex-col min-h-screen">
         <AppSidebar />
-        <div className="md:pl-60">
+        <div>
             <main className={cn('flex-1')}>
             {children}
             </main>
