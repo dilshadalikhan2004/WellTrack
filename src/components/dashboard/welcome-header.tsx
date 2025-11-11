@@ -55,9 +55,9 @@ export function WelcomeHeader({ userName }: { userName: string }) {
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  'rounded-full w-12 h-12 text-2xl transition-transform transform hover:scale-110',
+                  'rounded-full w-12 h-12 text-2xl transition-transform transform hover:scale-125 focus:scale-125',
                   selectedMood?.label === mood.label
-                    ? 'bg-accent border-2 border-primary/50 scale-110'
+                    ? 'bg-accent border-2 border-primary/50 scale-125'
                     : ''
                 )}
                 onClick={() => handleMoodSelect(mood)}
