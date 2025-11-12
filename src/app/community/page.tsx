@@ -1,9 +1,22 @@
 
+'use client';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ForumList } from '@/components/community/forum-list';
 import { LatestPosts } from '@/components/community/latest-posts';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import type { CommunityForumDoc } from '@/lib/types';
 
 export default function CommunityPage() {
+    const firestore = useFirestore();
+    const forumsCollectionRef = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return collection(firestore, `community_forums`);
+    }, [firestore]);
+
+    const { data: forums, isLoading: forumsLoading } = useCollection<CommunityForumDoc>(forumsCollectionRef);
+
     return (
         <div className="flex flex-col min-h-screen">
             <header className="sticky top-0 z-10 hidden h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-6 md:flex md:items-center">
@@ -22,10 +35,10 @@ export default function CommunityPage() {
                 </Card>
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
-                        <LatestPosts />
+                        <LatestPosts forums={forums || []} forumsLoading={forumsLoading}/>
                     </div>
                     <div className="lg:col-span-1">
-                        <ForumList />
+                        <ForumList forums={forums || []} isLoading={forumsLoading} />
                     </div>
                 </div>
             </main>

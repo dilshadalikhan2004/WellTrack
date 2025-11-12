@@ -2,10 +2,7 @@
 'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { mockForums } from "@/lib/data";
 import { ArrowRight, GraduationCap, ShieldQuestion, Brain } from "lucide-react";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { collection } from "firebase/firestore";
 import type { CommunityForumDoc } from "@/lib/types";
 
 const iconMap = {
@@ -14,14 +11,12 @@ const iconMap = {
     Brain: Brain,
 };
 
-export function ForumList() {
-    const firestore = useFirestore();
-    const forumsCollectionRef = useMemoFirebase(() => {
-        if (!firestore) return null;
-        return collection(firestore, `community_forums`);
-    }, [firestore]);
+type ForumListProps = {
+    forums: CommunityForumDoc[];
+    isLoading: boolean;
+}
 
-    const { data: forums, isLoading } = useCollection<CommunityForumDoc>(forumsCollectionRef);
+export function ForumList({ forums, isLoading }: ForumListProps) {
     
     return (
         <Card>

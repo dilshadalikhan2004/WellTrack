@@ -17,15 +17,14 @@ import { collection, doc, getDoc, query, orderBy } from 'firebase/firestore';
 import type { CommunityForumDoc, ForumPost, UserProfile } from '@/lib/types';
 import { NewPostDialog } from './new-post-dialog';
 import { useEffect, useState } from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
 import { EditPostDialog } from './edit-post-dialog';
 
-export function LatestPosts() {
+type LatestPostsProps = {
+    forums: CommunityForumDoc[];
+    forumsLoading: boolean;
+}
+
+export function LatestPosts({ forums, forumsLoading }: LatestPostsProps) {
   const firestore = useFirestore();
   const { user } = useUser();
 
@@ -37,15 +36,9 @@ export function LatestPosts() {
     );
   }, [firestore]);
 
-  const forumsCollectionRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'community_forums');
-  }, [firestore]);
 
   const { data: posts, isLoading: postsLoading } =
     useCollection<ForumPost>(postsCollectionRef);
-  const { data: forums, isLoading: forumsLoading } =
-    useCollection<CommunityForumDoc>(forumsCollectionRef);
 
   const [postsWithAuthors, setPostsWithAuthors] = useState<ForumPost[]>([]);
 
