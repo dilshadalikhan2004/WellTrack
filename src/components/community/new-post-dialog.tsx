@@ -63,12 +63,11 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
     
     let finalForumId = forumId;
     if (!finalForumId) {
-        // Handle case where forums are still loading or empty
-        if (isLoading || !forums || forums.length === 0) {
+        if (!forums || forums.length === 0) {
             toast({
                 variant: 'destructive',
-                title: 'Forums not loaded',
-                description: 'Please wait for forums to load or select one.',
+                title: 'Forums not available',
+                description: 'Cannot create a post because no forums exist or they are still loading.',
             });
             setIsSubmitting(false);
             return;
@@ -125,8 +124,12 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
       setOpen(isOpen);
     }}>
       <DialogTrigger asChild>
-        <Button disabled={!user}>
-          <PlusCircle className="w-4 h-4 mr-2" />
+        <Button disabled={!user || isLoading}>
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <PlusCircle className="w-4 h-4 mr-2" />
+          )}
           Start a Discussion
         </Button>
       </DialogTrigger>
@@ -160,7 +163,7 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
                   <SelectValue placeholder={isLoading ? "Loading forums..." : "Defaults to General Wellness"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {forums && forums.map(forum => (
+                  {forums.map(forum => (
                     <SelectItem key={forum.id} value={forum.id}>{forum.name}</SelectItem>
                   ))}
                 </SelectContent>
@@ -179,7 +182,7 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={isSubmitting || isLoading}>
+            <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Create Post
             </Button>
