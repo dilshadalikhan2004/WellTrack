@@ -48,13 +48,28 @@ export function NewPostDialog({ forums }: { forums: CommunityForumDoc[] }) {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!title || !content || !forumId || !user || !firestore) {
+    if (!title || !content || !user || !firestore) {
       toast({
         variant: 'destructive',
         title: 'Missing fields',
-        description: 'Please fill out all fields and select a forum.',
+        description: 'Please fill out a title and message for your post.',
       });
       return;
+    }
+    
+    let finalForumId = forumId;
+    if (!finalForumId) {
+        const generalForum = forums.find(f => f.name === 'General Wellness');
+        if (generalForum) {
+            finalForumId = generalForum.id;
+        } else {
+             toast({
+                variant: 'destructive',
+                title: 'Default Forum Not Found',
+                description: 'Please select a forum to post in.',
+            });
+            return;
+        }
     }
 
     const postsCollection = collection(firestore, 'forum_posts');
@@ -62,7 +77,7 @@ export function NewPostDialog({ forums }: { forums: CommunityForumDoc[] }) {
     await addDocumentNonBlocking(postsCollection, {
         title,
         content,
-        communityForumId: forumId,
+        communityForumId: finalForumId,
         userProfileId: user.uid,
         timestamp: serverTimestamp(),
         replies: 0,
@@ -108,17 +123,16 @@ export function NewPostDialog({ forums }: { forums: CommunityForumDoc[] }) {
               />
             </div>
              <div className="space-y-1">
-              <Label htmlFor="forum">Forum</Label>
+              <Label htmlFor="forum">Forum (Optional)</Label>
               <Select 
-                required 
                 value={forumId}
                 onValueChange={setForumId}
               >
                 <SelectTrigger id="forum">
-                  <SelectValue placeholder="Select a forum..." />
+                  <SelectValue placeholder="Defaults to General Wellness" />
                 </SelectTrigger>
                 <SelectContent>
-                  {forums.map(forum => (
+                  {forums && forums.map(forum => (
                     <SelectItem key={forum.id} value={forum.id}>{forum.name}</SelectItem>
                   ))}
                 </SelectContent>
