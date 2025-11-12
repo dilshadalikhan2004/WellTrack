@@ -158,17 +158,24 @@ export type Resource = {
     duration?: number; // in minutes
 }
 
-export type SafetyPlan = {
-  emergencyContacts: {
+export type EmergencyContact = {
     id: string;
+    userProfileId: string;
     name: string;
     relationship: string;
     phone: string;
-  }[];
-  copingStrategies: {
+};
+
+export type CopingStrategy = {
     id: string;
+    userProfileId: string;
     text: string;
-  }[];
+};
+
+
+export type SafetyPlan = {
+  emergencyContacts: EmergencyContact[];
+  copingStrategies: CopingStrategy[];
 };
 
 export type CommunityForum = {
@@ -217,5 +224,3 @@ export type ForumCategory = {
     name: string;
     description: string;
 };
-
-    

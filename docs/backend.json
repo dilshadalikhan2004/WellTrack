@@ -587,6 +587,32 @@
         "duration": { "type": "number", "description": "Estimated time to consume in minutes." }
       },
       "required": ["id", "title", "type", "category", "imageUrl"]
+    },
+    "EmergencyContact": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EmergencyContact",
+      "type": "object",
+      "description": "Represents a single emergency contact for a user.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the contact." },
+        "userProfileId": { "type": "string", "description": "Reference to the user who owns this contact." },
+        "name": { "type": "string", "description": "Name of the contact person." },
+        "relationship": { "type": "string", "description": "Relationship to the user (e.g., Friend, Parent, Therapist)." },
+        "phone": { "type": "string", "description": "Phone number of the contact." }
+      },
+      "required": ["id", "userProfileId", "name", "relationship", "phone"]
+    },
+    "CopingStrategy": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CopingStrategy",
+      "type": "object",
+      "description": "Represents a single coping strategy defined by the user.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the strategy." },
+        "userProfileId": { "type": "string", "description": "Reference to the user who owns this strategy." },
+        "text": { "type": "string", "description": "The text describing the coping strategy." }
+      },
+      "required": ["id", "userProfileId", "text"]
     }
   },
   "auth": {
@@ -890,10 +916,32 @@
             { "name": "resourceId", "description": "The unique identifier for the library resource." }
           ]
         }
+      },
+      {
+        "path": "/users/{userId}/emergency_contacts/{contactId}",
+        "definition": {
+          "entityName": "EmergencyContact",
+          "schema": { "$ref": "#/backend/entities/EmergencyContact" },
+          "description": "Stores the user's personal emergency contacts. Only accessible to the user.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier for the user." },
+            { "name": "contactId", "description": "The unique identifier for the emergency contact." }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/coping_strategies/{strategyId}",
+        "definition": {
+          "entityName": "CopingStrategy",
+          "schema": { "$ref": "#/backend/entities/CopingStrategy" },
+          "description": "Stores the user's personal coping strategies. Only accessible to the user.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier for the user." },
+            { "name": "strategyId", "description": "The unique identifier for the coping strategy." }
+          ]
+        }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, adhering to the principles of Authorization Independence and Structural Segregation. User-specific data is stored under the `/users/{userId}` path, ensuring that only the authenticated user can access their data. Each user has their own collections for habits, mood logs, journal entries, routines, goals, stress levels, and notifications. Financial data is also stored under the user's private path. \n\nCommunity forum data, which requires different access controls, is stored separately under `/community_forums` and `/forum_posts`, allowing for public read access while restricting write access to authorized users.\n\n The Mental Health Library content is stored in a public `/library` collection, as it is meant to be accessible by all authenticated users.\n\n**Authorization Independence:** Achieved by structuring data to avoid `get()` calls in security rules. User-owned data is directly nested under the `/users/{userId}` path.  For the community forum, the `ForumPost` includes the `userProfileId` to check ownership without needing to retrieve the user's profile. This prevents hierarchical authorization dependencies. \n\n**QAPs (Rules are not Filters):** Secure `list` operations are supported via structural segregation. The `/users/{userId}` collections allow listing only data owned by a specific user.  Public data (forums, library) are separated from private user data."
+    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, adhering to the principles of Authorization Independence and Structural Segregation. User-specific data is stored under the `/users/{userId}` path, ensuring that only the authenticated user can access their data. Each user has their own collections for habits, mood logs, journal entries, routines, goals, stress levels, notifications, and safety plan data (contacts and strategies). Financial data is also stored under the user's private path. \n\nCommunity forum data, which requires different access controls, is stored separately under `/community_forums` and `/forum_posts`, allowing for public read access while restricting write access to authorized users.\n\n The Mental Health Library content is stored in a public `/library` collection, as it is meant to be accessible by all authenticated users.\n\n**Authorization Independence:** Achieved by structuring data to avoid `get()` calls in security rules. User-owned data is directly nested under the `/users/{userId}` path.  For the community forum, the `ForumPost` includes the `userProfileId` to check ownership without needing to retrieve the user's profile. This prevents hierarchical authorization dependencies. \n\n**QAPs (Rules are not Filters):** Secure `list` operations are supported via structural segregation. The `/users/{userId}` collections allow listing only data owned by a specific user.  Public data (forums, library) are separated from private user data."
   }
 }
-
-    
