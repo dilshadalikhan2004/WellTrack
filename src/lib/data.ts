@@ -1,4 +1,5 @@
-import type { User, Habit, MoodOption, MoodLog, Goal, Badge } from './types';
+
+import type { User, Habit, MoodOption, MoodLog, Goal, Badge, SafetyPlan, CommunityForum, ForumPost } from './types';
 import {
   HeartPulse,
   Brain,
@@ -13,6 +14,8 @@ import {
   Star,
   Sparkles,
   Trophy,
+  ShieldQuestion,
+  GraduationCap,
 } from 'lucide-react';
 import { subDays } from 'date-fns';
 import { PlaceHolderImages } from './placeholder-images';
@@ -34,48 +37,38 @@ export const mockUser: User = {
 export const mockHabits: Habit[] = [
   {
     id: 'habit-1',
+    userProfileId: 'user-1',
     name: 'Drink 8 glasses of water',
     category: 'Physical',
-    icon: GlassWater,
-    goal: 8,
-    unit: 'glasses',
-    completed: true,
+    goal: '8',
   },
   {
     id: 'habit-2',
+    userProfileId: 'user-1',
     name: 'Sleep 7-9 hours',
     category: 'Physical',
-    icon: Bed,
-    goal: 8,
-    unit: 'hours',
-    completed: true,
+    goal: '8',
   },
   {
     id: 'habit-3',
+    userProfileId: 'user-1',
     name: '30 min exercise',
     category: 'Physical',
-    icon: Dumbbell,
-    goal: 30,
-    unit: 'minutes',
-    completed: false,
+    goal: '30',
   },
   {
     id: 'habit-4',
+    userProfileId: 'user-1',
     name: 'Study for 2 hours',
     category: 'Academic',
-    icon: Book,
-    goal: 2,
-    unit: 'hours',
-    completed: true,
+    goal: '2',
   },
   {
     id: 'habit-5',
+    userProfileId: 'user-1',
     name: 'Meditate for 10 mins',
     category: 'Mental',
-    icon: Brain,
-    goal: 10,
-    unit: 'minutes',
-    completed: false,
+    goal: '10',
   },
 ];
 
@@ -89,17 +82,19 @@ export const moodOptions: MoodOption[] = [
 ];
 
 export const mockMoodLogs: MoodLog[] = [
-  { date: subDays(new Date(), 0), mood: 'Happy', rating: 9 },
-  { date: subDays(new Date(), 1), mood: 'Motivated', rating: 7 },
-  { date: subDays(new Date(), 2), mood: 'Calm', rating: 8 },
-  { date: subDays(new Date(), 3), mood: 'Stressed', rating: 2 },
-  { date: subDays(new Date(), 4), mood: 'Happy', rating: 8 },
-  { date: subDays(new Date(), 5), mood: 'Sad', rating: 3 },
-  { date: subDays(new Date(), 6), mood: 'Motivated', rating: 6 },
+  { date: subDays(new Date(), 0), mood: 'Happy', rating: 9, userProfileId: 'user-1', timestamp: {} as any },
+  { date: subDays(new Date(), 1), mood: 'Motivated', rating: 7, userProfileId: 'user-1', timestamp: {} as any },
+  { date: subDays(new Date(), 2), mood: 'Calm', rating: 8, userProfileId: 'user-1', timestamp: {} as any },
+  { date: subDays(new Date(), 3), mood: 'Stressed', rating: 2, userProfileId: 'user-1', timestamp: {} as any },
+  { date: subDays(new Date(), 4), mood: 'Happy', rating: 8, userProfileId: 'user-1', timestamp: {} as any },
+  { date: subDays(new Date(), 5), mood: 'Sad', rating: 3, userProfileId: 'user-1', timestamp: {} as any },
+  { date: subDays(new Date(), 6), mood: 'Motivated', rating: 6, userProfileId: 'user-1', timestamp: {} as any },
   ...Array.from({ length: 150 }, (_, i) => ({
       date: subDays(new Date(), i + 7),
       mood: moodOptions[Math.floor(Math.random() * moodOptions.length)].label,
-      rating: Math.floor(Math.random() * 10) + 1
+      rating: Math.floor(Math.random() * 10) + 1,
+      userProfileId: 'user-1', 
+      timestamp: {} as any
   }))
 ];
 
@@ -193,4 +188,55 @@ export const mockBadges: Badge[] = [
     icon: Smile,
     isEarned: false,
   },
+];
+
+export const mockSafetyPlan: SafetyPlan = {
+  emergencyContacts: [
+    { id: 'ec-1', name: 'Dr. Emily Carter', relationship: 'Therapist', phone: '123-456-7890' },
+    { id: 'ec-2', name: 'Alex Johnson', relationship: 'Close Friend', phone: '234-567-8901' },
+    { id: 'ec-3', name: 'Campus Support', relationship: 'University Service', phone: '345-678-9012' },
+  ],
+  copingStrategies: [
+    { id: 'cs-1', text: 'Practice 4-7-8 breathing for 5 minutes.' },
+    { id: 'cs-2', text: 'Listen to my "Calm" playlist on Spotify.' },
+    { id: 'cs-3', text: 'Use the 5-4-3-2-1 grounding technique.' },
+    { id: 'cs-4', text: 'Go for a short walk outside, even for just 10 minutes.' },
+    { id: 'cs-5', text: 'Write down everything I\'m feeling in my journal.' },
+  ],
+};
+
+export const mockForums: CommunityForum[] = [
+  { id: 'forum-1', name: 'Anxiety Support', description: 'Share experiences and coping mechanisms for anxiety.', icon: ShieldQuestion },
+  { id: 'forum-2', name: 'Exam Stress', description: 'Discuss study strategies and ways to manage pressure during exams.', icon: GraduationCap },
+  { id: 'forum-3', name: 'General Wellness', description: 'A place for general chat about mental well-being and self-care.', icon: Brain },
+];
+
+export const mockForumPosts: ForumPost[] = [
+    {
+        id: 'post-1',
+        forumId: 'forum-2',
+        title: 'Mid-terms are really getting to me',
+        author: { name: 'StudentA', avatarUrl: 'https://picsum.photos/seed/avatar1/40/40' },
+        timestamp: subDays(new Date(), 1),
+        content: "I have 3 exams in 2 days and I feel like I can't keep up. How does everyone else deal with this pressure?",
+        replies: 12,
+    },
+    {
+        id: 'post-2',
+        forumId: 'forum-1',
+        title: 'Feeling overwhelmed in social situations',
+        author: { name: 'User246', avatarUrl: 'https://picsum.photos/seed/avatar2/40/40' },
+        timestamp: subDays(new Date(), 2),
+        content: "Lately, I've been finding it really hard to be in crowded places. Does anyone have any tips for managing social anxiety?",
+        replies: 8,
+    },
+    {
+        id: 'post-3',
+        forumId: 'forum-3',
+        title: 'What are your favorite self-care activities?',
+        author: { name: 'WellnessSeeker', avatarUrl: 'https://picsum.photos/seed/avatar3/40/40' },
+        timestamp: subDays(new Date(), 4),
+        content: "Looking for some new ideas for self-care that aren't just bubble baths. What do you all do to relax and recharge?",
+        replies: 23,
+    }
 ];

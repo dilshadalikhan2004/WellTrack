@@ -149,3 +149,36 @@ export type Resource = {
     contentUrl?: string;
     duration?: number; // in minutes
 }
+
+export type SafetyPlan = {
+  emergencyContacts: {
+    id: string;
+    name: string;
+    relationship: string;
+    phone: string;
+  }[];
+  copingStrategies: {
+    id: string;
+    text: string;
+  }[];
+};
+
+export type CommunityForum = {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ElementType;
+};
+
+export type ForumPost = {
+  id: string;
+  forumId: string;
+  title: string;
+  author: {
+    name: string;
+    avatarUrl: string;
+  };
+  timestamp: Date;
+  content: string;
+  replies: number;
+};

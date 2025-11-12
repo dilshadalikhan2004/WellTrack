@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -15,6 +16,8 @@ import {
   Landmark,
   BookHeart,
   Menu,
+  ShieldAlert,
+  Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -42,6 +45,8 @@ const navItems = [
   { href: '/library', label: 'Library', icon: BookHeart },
   { href: '/awards', label: 'Awards', icon: Trophy },
   { href: '/insights', label: 'Insights', icon: BrainCircuit },
+  { href: '/community', label: 'Community', icon: Users },
+  { href: '/safety', label: 'Safety Plan', icon: ShieldAlert },
 ];
 
 function NavLink({
