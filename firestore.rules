@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Firestore Security Rules for WellTrack application.
  *
@@ -7,27 +8,20 @@
  * Community forum data is publicly readable, but write access to forums and posts is restricted.
  *
  * Data Structure:
- * - /users/{userId}/user_profile: User profile information.
- * - /users/{userId}/habits/{habitId}: Habits tracked by the user.
- * - /users/{userId}/habit_logs/{habitLogId}: Log entries for each habit.
- * - /users/{userId}/mood_logs/{moodLogId}: Mood log entries.
- * - /users/{userId}/journal_entries/{journalEntryId}: Journal entries.
- * - /users/{userId}/counselor_chats/{messageId}: AI Counselor chat messages.
- * - /users/{userId}/routines/{routineId}: Routines created by the user.
- * - /users/{userId}/goals/{goalId}: Goals set by the user.
- * - /users/{userId}/notifications/{notificationId}: Notifications for the user.
- * - /community_forums/{communityForumId}: Community forum data.
- * - /forum_posts/{forumPostId}: Forum posts.
+ * - /users/{userId}/**: All user-specific data.
+ * - /community_forums/{communityForumId}: Community forum metadata.
+ * - /forum_posts/{forumPostId}: Individual forum posts.
+ * - /forum_posts/{forumPostId}/replies/{replyId}: Replies to a specific post.
  * - /library/{resourceId}: Publicly accessible mental health resources.
  *
  * Key Security Decisions:
- * - User data is strictly private and only accessible to the owning user.
- * - Community forum and library data is publicly readable.
- * - Listing of user documents in `/users/{userId}` is allowed.
- * - No schema validation is enforced in this prototyping phase.
+ * - User data is strictly private.
+ * - Community forum data is publicly readable.
+ * - Listing of user documents in `/users/{userId}` is allowed only for the owner.
+ * - No complex schema validation is enforced during prototyping.
  *
  * Denormalization for Authorization:
- * - Forum posts include the `userProfileId` to enable checking ownership without additional reads.
+ * - Forum posts and replies include `userProfileId` to check ownership without additional reads.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -35,7 +29,7 @@ service cloud.firestore {
 
     /**
      * @description Checks if the request is made by an authenticated user.
-     * @principle Requires authentication for all non-public operations.
+     * @principle Requires authentication for most operations.
      */
     function isSignedIn() {
       return request.auth != null;
@@ -51,14 +45,10 @@ service cloud.firestore {
     }
 
     /**
-     * @description Checks if the authenticated user is the owner of an existing document.
-     * @principle Prevents modification or deletion of non-existent documents.
-     * @param {string} userId The user ID to compare against the authenticated user's ID.
+     * @description Rule for all documents within a user's private space.
+     * @path /users/{userId}/{document=**}
+     * @allow (read, write) Only the user who owns this data can read or write it.
      */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-    
     match /users/{userId}/{document=**} {
       allow read, write: if isOwner(userId);
     }
@@ -67,26 +57,38 @@ service cloud.firestore {
      * @description Rule for /community_forums/{communityForumId} collection.
      * @path /community_forums/{communityForumId}
      * @allow (get, list) Any user can read community forum data.
-     * @deny (create, update, delete) Write access is not allowed in this prototype phase. // TODO: Add role-based access control for admins.
-     * @principle Allows public read access to community forum data.
+     * @deny (create, update, delete) Write access is not allowed in this prototype phase.
      */
     match /community_forums/{communityForumId} {
       allow get, list: if true;
-      allow create, update, delete: if false; // TODO: Add role-based access control for admins.
+      allow create, update, delete: if false; // Only admins should write.
     }
 
     /**
      * @description Rule for /forum_posts/{forumPostId} collection.
      * @path /forum_posts/{forumPostId}
      * @allow (get, list) Any user can read forum posts.
-     * @allow (create) Any authenticated user can create forum posts.
-     * @allow (update, delete) Only the author can update or delete their own posts.
-     * @principle Allows public read access to forum posts and restricts write access to the author.
+     * @allow (create) Any authenticated user can create a post, ensuring they are the author.
+     * @allow (update, delete) Only the author of the post can update or delete it.
      */
     match /forum_posts/{forumPostId} {
       allow get, list: if true;
       allow create: if isSignedIn() && request.resource.data.userProfileId == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.userProfileId == request.auth.uid && resource != null;
+      allow update: if isSignedIn() && resource.data.userProfileId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userProfileId == request.auth.uid;
+
+      /**
+       * @description Rule for the `replies` sub-collection within a forum post.
+       * @path /forum_posts/{forumPostId}/replies/{replyId}
+       * @allow (list, get) Any user can read replies.
+       * @allow (create) Any authenticated user can create a reply, ensuring they are the author.
+       * @allow (update, delete) Only the author of the reply can update or delete it.
+       */
+      match /replies/{replyId} {
+        allow list, get: if true;
+        allow create: if isSignedIn() && request.resource.data.userProfileId == request.auth.uid;
+        allow update, delete: if isSignedIn() && resource.data.userProfileId == request.auth.uid;
+      }
     }
 
     /**
@@ -94,7 +96,6 @@ service cloud.firestore {
      * @path /library/{resourceId}
      * @allow (get, list) Any authenticated user can read library resources.
      * @deny (create, update, delete) Write access is restricted.
-     * @principle Allows public read access to the mental health library for signed-in users.
      */
     match /library/{resourceId} {
       allow get, list: if isSignedIn();

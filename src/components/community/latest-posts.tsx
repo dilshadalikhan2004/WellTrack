@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -12,13 +11,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageSquare, MoreHorizontal } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, doc, getDoc, query, orderBy } from 'firebase/firestore';
+import { collection, doc, getDoc, query, orderBy, getCountFromServer } from 'firebase/firestore';
 import type { CommunityForumDoc, ForumPost, UserProfile } from '@/lib/types';
 import { useEffect, useState } from 'react';
 import { EditPostDialog } from './edit-post-dialog';
+import Link from 'next/link';
 
 export function LatestPosts({ forums }: { forums: CommunityForumDoc[] }) {
   const firestore = useFirestore();
@@ -40,7 +40,7 @@ export function LatestPosts({ forums }: { forums: CommunityForumDoc[] }) {
 
   useEffect(() => {
     if (posts && firestore) {
-      const fetchAuthors = async () => {
+      const fetchAuthorsAndReplies = async () => {
         const postsWithData = await Promise.all(
           posts.map(async (post) => {
             const userProfileRef = doc(
@@ -48,20 +48,29 @@ export function LatestPosts({ forums }: { forums: CommunityForumDoc[] }) {
               `users/${post.userProfileId}/user_profile`,
               post.userProfileId
             );
+            const repliesColRef = collection(firestore, `forum_posts/${post.id}/replies`);
+
             try {
-              const userDoc = await getDoc(userProfileRef);
+              const [userDoc, repliesSnapshot] = await Promise.all([
+                  getDoc(userProfileRef),
+                  getCountFromServer(repliesColRef)
+              ]);
+
               const authorName = userDoc.exists()
                 ? (userDoc.data() as UserProfile).username
                 : 'Anonymous';
-              return { ...post, author: { name: authorName } };
+              
+              const repliesCount = repliesSnapshot.data().count;
+
+              return { ...post, author: { name: authorName }, replies: repliesCount };
             } catch (e) {
-              return { ...post, author: { name: 'Anonymous' } };
+              return { ...post, author: { name: 'Anonymous' }, replies: 0 };
             }
           })
         );
         setPostsWithAuthors(postsWithData);
       };
-      fetchAuthors();
+      fetchAuthorsAndReplies();
     }
   }, [posts, firestore]);
 
@@ -111,9 +120,11 @@ export function LatestPosts({ forums }: { forums: CommunityForumDoc[] }) {
                         )}
                     </div>
                   </div>
-                  <h4 className="font-semibold text-lg hover:underline cursor-pointer">
-                    {post.title}
-                  </h4>
+                  <Link href={`/community/${post.id}`} passHref>
+                    <h4 className="font-semibold text-lg hover:underline cursor-pointer">
+                        {post.title}
+                    </h4>
+                  </Link>
                   <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
                     {post.content}
                   </p>

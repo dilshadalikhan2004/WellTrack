@@ -385,6 +385,36 @@
         "content"
       ]
     },
+     "ForumPostReply": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ForumPostReply",
+      "type": "object",
+      "description": "Represents a reply to a forum post.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the reply."
+        },
+        "postId": {
+          "type": "string",
+          "description": "Reference to the parent ForumPost."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to the UserProfile of the author."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the reply was created.",
+          "format": "date-time"
+        },
+        "content": {
+          "type": "string",
+          "description": "The text content of the reply."
+        }
+      },
+      "required": ["id", "postId", "userProfileId", "timestamp", "content"]
+    },
     "Gamification": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Gamification",
@@ -779,6 +809,18 @@
               "name": "forumPostId",
               "description": "The unique identifier for the forum post."
             }
+          ]
+        }
+      },
+       {
+        "path": "/forum_posts/{forumPostId}/replies/{replyId}",
+        "definition": {
+          "entityName": "ForumPostReply",
+          "schema": { "$ref": "#/backend/entities/ForumPostReply" },
+          "description": "Stores replies for a specific forum post. Read access is public, write is for authenticated users.",
+          "params": [
+            { "name": "forumPostId", "description": "The unique identifier for the forum post." },
+            { "name": "replyId", "description": "The unique identifier for the reply." }
           ]
         }
       },

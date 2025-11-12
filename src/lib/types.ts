@@ -183,9 +183,21 @@ export type ForumPost = {
   communityForumId: string;
   title: string;
   userProfileId: string;
-  timestamp: Timestamp;
+  timestamp: Timestamp | null;
   content: string;
-  replies?: number; // Optional
+  replies?: number;
+  author?: {
+    name: string;
+    avatarUrl?: string;
+  };
+};
+
+export type ForumPostReply = {
+  id: string;
+  postId: string;
+  userProfileId: string;
+  timestamp: Timestamp | null;
+  content: string;
   author?: {
     name: string;
     avatarUrl?: string;
