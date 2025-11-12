@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -15,7 +16,6 @@ import { Badge } from '../ui/badge';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, doc, getDoc, query, orderBy } from 'firebase/firestore';
 import type { CommunityForumDoc, ForumPost, UserProfile } from '@/lib/types';
-import { NewPostDialog } from './new-post-dialog';
 import { useEffect, useState } from 'react';
 import { EditPostDialog } from './edit-post-dialog';
 
@@ -80,7 +80,6 @@ export function LatestPosts({ forums, forumsLoading }: LatestPostsProps) {
             Recent discussions from the community.
           </CardDescription>
         </div>
-        <NewPostDialog forums={forums || []} />
       </CardHeader>
       <CardContent className="space-y-6">
         {isLoading && <p>Loading posts...</p>}
