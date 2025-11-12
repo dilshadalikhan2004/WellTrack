@@ -1,6 +1,26 @@
 
 {
   "entities": {
+    "ForumCategory": {
+      "title": "ForumCategory",
+      "type": "object",
+      "description": "Represents a single forum category option for AI classification.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique ID of the forum."
+        },
+        "name": {
+          "type": "string",
+          "description": "The display name of the forum."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of what the forum is about."
+        }
+      },
+      "required": ["id", "name", "description"]
+    },
     "UserProfile": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "UserProfile",
@@ -875,3 +895,5 @@
     "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, adhering to the principles of Authorization Independence and Structural Segregation. User-specific data is stored under the `/users/{userId}` path, ensuring that only the authenticated user can access their data. Each user has their own collections for habits, mood logs, journal entries, routines, goals, stress levels, and notifications. Financial data is also stored under the user's private path. \n\nCommunity forum data, which requires different access controls, is stored separately under `/community_forums` and `/forum_posts`, allowing for public read access while restricting write access to authorized users.\n\n The Mental Health Library content is stored in a public `/library` collection, as it is meant to be accessible by all authenticated users.\n\n**Authorization Independence:** Achieved by structuring data to avoid `get()` calls in security rules. User-owned data is directly nested under the `/users/{userId}` path.  For the community forum, the `ForumPost` includes the `userProfileId` to check ownership without needing to retrieve the user's profile. This prevents hierarchical authorization dependencies. \n\n**QAPs (Rules are not Filters):** Secure `list` operations are supported via structural segregation. The `/users/{userId}` collections allow listing only data owned by a specific user.  Public data (forums, library) are separated from private user data."
   }
 }
+
+    

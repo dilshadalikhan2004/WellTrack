@@ -8,3 +8,6 @@ import '@/ai/flows/suggest-mental-wellness-tools.ts';
 import '@/ai/flows/analyze-journal-sentiment.ts';
 import '@/ai/flows/personal-counselor-flow.ts';
 import '@/ai/flows/generate-financial-tips.ts';
+import '@/ai/flows/categorize-post-flow.ts';
+
+    

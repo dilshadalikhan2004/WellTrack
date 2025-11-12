@@ -211,3 +211,11 @@ export type CommunityForumDoc = {
     description: string;
     iconName: string; // Storing icon name as a string
 }
+
+export type ForumCategory = {
+    id: string;
+    name: string;
+    description: string;
+};
+
+    

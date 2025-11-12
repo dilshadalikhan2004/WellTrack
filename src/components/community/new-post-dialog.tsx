@@ -14,20 +14,14 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useUser } from '@/firebase';
-import { PlusCircle, Loader2 } from 'lucide-react';
+import { PlusCircle, Loader2, Sparkles } from 'lucide-react';
 import { collection, serverTimestamp } from 'firebase/firestore';
 import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { CommunityForumDoc } from '@/lib/types';
+import { categorizePost } from '@/ai/flows/categorize-post-flow';
 
 
 export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc[], isLoading: boolean }) {
@@ -38,13 +32,11 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [forumId, setForumId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resetForm = () => {
     setTitle('');
     setContent('');
-    setForumId('');
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -60,40 +52,30 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
       setIsSubmitting(false);
       return;
     }
-    
-    let finalForumId = forumId;
-    if (!finalForumId) {
-        if (!forums || forums.length === 0) {
-            toast({
-                variant: 'destructive',
-                title: 'Forums not available',
-                description: 'Cannot create a post because no forums exist or they are still loading.',
-            });
-            setIsSubmitting(false);
-            return;
-        }
 
-        const generalForum = forums.find(f => f.name === 'General Wellness') || forums[0];
-         if (generalForum) {
-            finalForumId = generalForum.id;
-        } else {
-             toast({
-                variant: 'destructive',
-                title: 'No Forums Available',
-                description: 'Cannot create a post because no forums exist.',
-            });
-            setIsSubmitting(false);
-            return;
-        }
+    if (!forums || forums.length === 0) {
+        toast({
+            variant: 'destructive',
+            title: 'Forums not available',
+            description: 'Cannot categorize post because forums are not loaded. Please try again in a moment.',
+        });
+        setIsSubmitting(false);
+        return;
     }
-
-    const postsCollection = collection(firestore, 'forum_posts');
     
     try {
+        const { forumId } = await categorizePost({
+            postTitle: title,
+            postContent: content,
+            availableForums: forums.map(f => ({ id: f.id, name: f.name, description: f.description })),
+        });
+        
+        const postsCollection = collection(firestore, 'forum_posts');
+        
         await addDocumentNonBlocking(postsCollection, {
             title,
             content,
-            communityForumId: finalForumId,
+            communityForumId: forumId,
             userProfileId: user.uid,
             timestamp: serverTimestamp(),
             replies: 0,
@@ -101,12 +83,13 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
         
         toast({
           title: 'Post Created!',
-          description: 'Your discussion has been started.',
+          description: 'Your discussion has been automatically categorized and started.',
         });
 
         resetForm();
         setOpen(false);
     } catch (error) {
+        console.error("AI categorization or post creation failed:", error);
         toast({
             variant: 'destructive',
             title: 'Error Creating Post',
@@ -115,7 +98,6 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
     } finally {
         setIsSubmitting(false);
     }
-
   };
 
   return (
@@ -137,7 +119,7 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
         <DialogHeader>
           <DialogTitle>Start a New Discussion</DialogTitle>
           <DialogDescription>
-            Share your thoughts with the community. Your post will be anonymous.
+            Share your thoughts and the AI will automatically place it in the best forum for you.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -151,23 +133,6 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
                 placeholder="A clear and concise title" 
                 required 
               />
-            </div>
-             <div className="space-y-1">
-              <Label htmlFor="forum">Forum (Optional)</Label>
-              <Select 
-                value={forumId}
-                onValueChange={setForumId}
-                disabled={isLoading}
-              >
-                <SelectTrigger id="forum">
-                  <SelectValue placeholder={isLoading ? "Loading forums..." : "Defaults to General Wellness"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {forums.map(forum => (
-                    <SelectItem key={forum.id} value={forum.id}>{forum.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <div className="space-y-1">
               <Label htmlFor="content">Your Message</Label>
@@ -183,8 +148,12 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
           </div>
           <DialogFooter>
             <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Create Post
+                {isSubmitting ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                )}
+                Categorize & Create Post
             </Button>
           </DialogFooter>
         </form>
@@ -192,3 +161,5 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
     </Dialog>
   );
 }
+
+    
