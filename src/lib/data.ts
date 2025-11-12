@@ -1,5 +1,5 @@
 
-import type { User, Habit, MoodOption, MoodLog, Goal, Badge, SafetyPlan, CommunityForum, ForumPost } from './types';
+import type { User, Habit, MoodOption, MoodLog, Goal, Badge, SafetyPlan, CommunityForum, ForumPost, CommunityForumDoc } from './types';
 import {
   HeartPulse,
   Brain,
@@ -21,6 +21,11 @@ import { subDays } from 'date-fns';
 import { PlaceHolderImages } from './placeholder-images';
 
 const userAvatar = PlaceHolderImages.find((p) => p.id === 'user-avatar');
+
+ShieldQuestion.displayName = 'ShieldQuestion';
+GraduationCap.displayName = 'GraduationCap';
+Brain.displayName = 'Brain';
+
 
 export const mockUser: User = {
   id: 'user-1',
@@ -206,15 +211,16 @@ export const mockSafetyPlan: SafetyPlan = {
 };
 
 export const mockForums: CommunityForum[] = [
+  { id: 'forum-3', name: 'General Wellness', description: 'A place for general chat about mental well-being and self-care.', icon: Brain },
   { id: 'forum-1', name: 'Anxiety Support', description: 'Share experiences and coping mechanisms for anxiety.', icon: ShieldQuestion },
   { id: 'forum-2', name: 'Exam Stress', description: 'Discuss study strategies and ways to manage pressure during exams.', icon: GraduationCap },
-  { id: 'forum-3', name: 'General Wellness', description: 'A place for general chat about mental well-being and self-care.', icon: Brain },
 ];
+
 
 export const mockForumPosts: ForumPost[] = [
     {
         id: 'post-1',
-        forumId: 'forum-2',
+        communityForumId: 'forum-2',
         title: 'Mid-terms are really getting to me',
         author: { name: 'StudentA', avatarUrl: 'https://picsum.photos/seed/avatar1/40/40' },
         timestamp: subDays(new Date(), 1),
@@ -223,7 +229,7 @@ export const mockForumPosts: ForumPost[] = [
     },
     {
         id: 'post-2',
-        forumId: 'forum-1',
+        communityForumId: 'forum-1',
         title: 'Feeling overwhelmed in social situations',
         author: { name: 'User246', avatarUrl: 'https://picsum.photos/seed/avatar2/40/40' },
         timestamp: subDays(new Date(), 2),
@@ -232,7 +238,7 @@ export const mockForumPosts: ForumPost[] = [
     },
     {
         id: 'post-3',
-        forumId: 'forum-3',
+        communityForumId: 'forum-3',
         title: 'What are your favorite self-care activities?',
         author: { name: 'WellnessSeeker', avatarUrl: 'https://picsum.photos/seed/avatar3/40/40' },
         timestamp: subDays(new Date(), 4),

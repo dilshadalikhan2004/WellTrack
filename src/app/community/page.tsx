@@ -4,19 +4,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ForumList } from '@/components/community/forum-list';
 import { LatestPosts } from '@/components/community/latest-posts';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
-import type { CommunityForumDoc } from '@/lib/types';
 import { NewPostDialog } from '@/components/community/new-post-dialog';
+import { mockForums } from '@/lib/data';
+import type { CommunityForumDoc } from '@/lib/types';
+
 
 export default function CommunityPage() {
-    const firestore = useFirestore();
-    const forumsCollectionRef = useMemoFirebase(() => {
-        if (!firestore) return null;
-        return collection(firestore, `community_forums`);
-    }, [firestore]);
-
-    const { data: forums, isLoading: forumsLoading } = useCollection<CommunityForumDoc>(forumsCollectionRef);
+    const forums: CommunityForumDoc[] = mockForums.map(f => ({...f, iconName: f.icon.displayName || 'Brain' }));
+    const forumsLoading = false;
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -24,7 +19,7 @@ export default function CommunityPage() {
                 <h1 className="text-xl font-semibold">
                     Community Forums
                 </h1>
-                 <NewPostDialog forums={forums || []} isLoading={forumsLoading} />
+                 <NewPostDialog forums={forums} isLoading={forumsLoading} />
             </header>
             <main className="flex-1 p-4 space-y-6 bg-muted/40 md:p-8">
                  <Card>
@@ -37,10 +32,10 @@ export default function CommunityPage() {
                 </Card>
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
-                        <LatestPosts />
+                        <LatestPosts forums={forums} />
                     </div>
                     <div className="lg:col-span-1">
-                        <ForumList forums={forums || []} isLoading={forumsLoading} />
+                        <ForumList forums={forums} isLoading={forumsLoading} />
                     </div>
                 </div>
             </main>

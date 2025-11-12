@@ -19,16 +19,9 @@ import type { CommunityForumDoc, ForumPost, UserProfile } from '@/lib/types';
 import { useEffect, useState } from 'react';
 import { EditPostDialog } from './edit-post-dialog';
 
-export function LatestPosts() {
+export function LatestPosts({ forums }: { forums: CommunityForumDoc[] }) {
   const firestore = useFirestore();
   const { user } = useUser();
-
-  const forumsCollectionRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return collection(firestore, `community_forums`);
-  }, [firestore]);
-
-  const { data: forums } = useCollection<CommunityForumDoc>(forumsCollectionRef);
 
   const postsCollectionRef = useMemoFirebase(() => {
     if (!firestore) return null;
