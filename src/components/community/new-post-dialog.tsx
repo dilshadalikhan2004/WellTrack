@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -23,13 +24,13 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useUser } from '@/firebase';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Loader2 } from 'lucide-react';
 import { collection, serverTimestamp } from 'firebase/firestore';
 import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import type { CommunityForumDoc } from '@/lib/types';
 
 
-export function NewPostDialog({ forums }: { forums: CommunityForumDoc[] }) {
+export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc[], isLoading: boolean }) {
   const { toast } = useToast();
   const { user } = useUser();
   const firestore = useFirestore();
@@ -38,6 +39,7 @@ export function NewPostDialog({ forums }: { forums: CommunityForumDoc[] }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [forumId, setForumId] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resetForm = () => {
     setTitle('');
@@ -47,18 +49,20 @@ export function NewPostDialog({ forums }: { forums: CommunityForumDoc[] }) {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
+
     if (!title || !content || !user || !firestore) {
       toast({
         variant: 'destructive',
         title: 'Missing fields',
         description: 'Please fill out a title and message for your post.',
       });
+      setIsSubmitting(false);
       return;
     }
     
     let finalForumId = forumId;
     if (!finalForumId) {
-        // Correctly look for the default forum or use a fallback.
         const generalForum = forums.find(f => f.name === 'General Wellness') || forums[0];
         if (generalForum) {
             finalForumId = generalForum.id;
@@ -68,28 +72,40 @@ export function NewPostDialog({ forums }: { forums: CommunityForumDoc[] }) {
                 title: 'No Forums Available',
                 description: 'Cannot create a post because no forums exist.',
             });
+            setIsSubmitting(false);
             return;
         }
     }
 
     const postsCollection = collection(firestore, 'forum_posts');
     
-    await addDocumentNonBlocking(postsCollection, {
-        title,
-        content,
-        communityForumId: finalForumId,
-        userProfileId: user.uid,
-        timestamp: serverTimestamp(),
-        replies: 0,
-    });
-    
-    toast({
-      title: 'Post Created!',
-      description: 'Your discussion has been started.',
-    });
+    try {
+        await addDocumentNonBlocking(postsCollection, {
+            title,
+            content,
+            communityForumId: finalForumId,
+            userProfileId: user.uid,
+            timestamp: serverTimestamp(),
+            replies: 0,
+        });
+        
+        toast({
+          title: 'Post Created!',
+          description: 'Your discussion has been started.',
+        });
 
-    resetForm();
-    setOpen(false);
+        resetForm();
+        setOpen(false);
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: 'Error Creating Post',
+            description: 'There was a problem submitting your post. Please try again.'
+        })
+    } finally {
+        setIsSubmitting(false);
+    }
+
   };
 
   return (
@@ -127,9 +143,10 @@ export function NewPostDialog({ forums }: { forums: CommunityForumDoc[] }) {
               <Select 
                 value={forumId}
                 onValueChange={setForumId}
+                disabled={isLoading}
               >
                 <SelectTrigger id="forum">
-                  <SelectValue placeholder="Defaults to General Wellness" />
+                  <SelectValue placeholder={isLoading ? "Loading forums..." : "Defaults to General Wellness"} />
                 </SelectTrigger>
                 <SelectContent>
                   {forums && forums.map(forum => (
@@ -151,7 +168,10 @@ export function NewPostDialog({ forums }: { forums: CommunityForumDoc[] }) {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Create Post</Button>
+            <Button type="submit" disabled={isSubmitting || isLoading}>
+                {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Create Post
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

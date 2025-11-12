@@ -24,7 +24,7 @@ export default function CommunityPage() {
                 <h1 className="text-xl font-semibold">
                     Community Forums
                 </h1>
-                 <NewPostDialog forums={forums || []} />
+                 <NewPostDialog forums={forums || []} isLoading={forumsLoading} />
             </header>
             <main className="flex-1 p-4 space-y-6 bg-muted/40 md:p-8">
                  <Card>
@@ -37,7 +37,7 @@ export default function CommunityPage() {
                 </Card>
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
-                        <LatestPosts forums={forums || []} />
+                        <LatestPosts />
                     </div>
                     <div className="lg:col-span-1">
                         <ForumList forums={forums || []} isLoading={forumsLoading} />
