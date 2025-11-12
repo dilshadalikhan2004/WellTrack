@@ -37,7 +37,7 @@ export default function CommunityPage() {
                 </Card>
                 <div className="grid gap-6 lg:grid-cols-3">
                     <div className="lg:col-span-2">
-                        <LatestPosts forums={forums || []} forumsLoading={forumsLoading}/>
+                        <LatestPosts forums={forums || []} />
                     </div>
                     <div className="lg:col-span-1">
                         <ForumList forums={forums || []} isLoading={forumsLoading} />

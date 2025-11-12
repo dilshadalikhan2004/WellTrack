@@ -21,10 +21,9 @@ import { EditPostDialog } from './edit-post-dialog';
 
 type LatestPostsProps = {
     forums: CommunityForumDoc[];
-    forumsLoading: boolean;
 }
 
-export function LatestPosts({ forums, forumsLoading }: LatestPostsProps) {
+export function LatestPosts({ forums }: LatestPostsProps) {
   const firestore = useFirestore();
   const { user } = useUser();
 
@@ -69,7 +68,7 @@ export function LatestPosts({ forums, forumsLoading }: LatestPostsProps) {
     }
   }, [posts, firestore]);
 
-  const isLoading = postsLoading || forumsLoading;
+  const isLoading = postsLoading;
 
   return (
     <Card>
