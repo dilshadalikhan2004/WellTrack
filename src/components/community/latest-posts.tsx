@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -98,9 +99,9 @@ export function LatestPosts({ forums }: { forums: CommunityForumDoc[] }) {
                       <span>{post.author?.name || 'Anonymous'}</span>
                       <span>&middot;</span>
                       <span>
-                        {formatDistanceToNow(post.timestamp.toDate(), {
+                        {post.timestamp ? formatDistanceToNow(post.timestamp.toDate(), {
                           addSuffix: true,
-                        })}
+                        }) : 'Just now'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
