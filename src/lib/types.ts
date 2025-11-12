@@ -14,6 +14,14 @@ export type User = {
   };
 };
 
+export type UserProfile = {
+    id: string;
+    username: string;
+    email: string;
+    age?: number;
+    sex?: string;
+}
+
 export type Habit = {
   id: string;
   name: string;
@@ -167,18 +175,27 @@ export type CommunityForum = {
   id: string;
   name: string;
   description: string;
-  icon: React.ElementType;
+  icon: React.ElementType; // Kept for client-side mapping
 };
 
 export type ForumPost = {
   id: string;
-  forumId: string;
+  communityForumId: string;
   title: string;
-  author: {
-    name: string;
-    avatarUrl: string;
-  };
-  timestamp: Date;
+  userProfileId: string;
+  timestamp: Timestamp;
   content: string;
-  replies: number;
+  replies?: number; // Optional
+  author?: {
+    name: string;
+    avatarUrl?: string;
+  };
 };
+
+// Firestore document structure for CommunityForum
+export type CommunityForumDoc = {
+    id: string;
+    name: string;
+    description: string;
+    iconName: string; // Storing icon name as a string
+}

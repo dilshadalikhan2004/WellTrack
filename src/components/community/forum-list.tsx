@@ -3,9 +3,26 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { mockForums } from "@/lib/data";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, GraduationCap, ShieldQuestion, Brain } from "lucide-react";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection } from "firebase/firestore";
+import type { CommunityForumDoc } from "@/lib/types";
+
+const iconMap = {
+    ShieldQuestion: ShieldQuestion,
+    GraduationCap: GraduationCap,
+    Brain: Brain,
+};
 
 export function ForumList() {
+    const firestore = useFirestore();
+    const forumsCollectionRef = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return collection(firestore, `community_forums`);
+    }, [firestore]);
+
+    const { data: forums, isLoading } = useCollection<CommunityForumDoc>(forumsCollectionRef);
+    
     return (
         <Card>
             <CardHeader>
@@ -13,8 +30,9 @@ export function ForumList() {
                 <CardDescription>Browse discussion topics.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                {mockForums.map(forum => {
-                    const Icon = forum.icon;
+                {isLoading && <p>Loading forums...</p>}
+                {forums && forums.map(forum => {
+                    const Icon = iconMap[forum.iconName as keyof typeof iconMap] || Brain;
                     return (
                         <div key={forum.id} className="p-4 transition-colors border rounded-lg hover:bg-accent/50">
                             <div className="flex items-start gap-4">
@@ -30,6 +48,7 @@ export function ForumList() {
                         </div>
                     )
                 })}
+                 {forums && forums.length === 0 && <p className="text-sm text-center text-muted-foreground">No forums available.</p>}
             </CardContent>
         </Card>
     );
