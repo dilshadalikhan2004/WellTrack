@@ -63,8 +63,19 @@ export function NewPostDialog({ forums, isLoading }: { forums: CommunityForumDoc
     
     let finalForumId = forumId;
     if (!finalForumId) {
+        // Handle case where forums are still loading or empty
+        if (isLoading || !forums || forums.length === 0) {
+            toast({
+                variant: 'destructive',
+                title: 'Forums not loaded',
+                description: 'Please wait for forums to load or select one.',
+            });
+            setIsSubmitting(false);
+            return;
+        }
+
         const generalForum = forums.find(f => f.name === 'General Wellness') || forums[0];
-        if (generalForum) {
+         if (generalForum) {
             finalForumId = generalForum.id;
         } else {
              toast({
