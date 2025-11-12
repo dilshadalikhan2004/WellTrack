@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -59,14 +58,15 @@ export function NewPostDialog({ forums }: { forums: CommunityForumDoc[] }) {
     
     let finalForumId = forumId;
     if (!finalForumId) {
-        const generalForum = forums.find(f => f.name === 'General Wellness');
+        // Correctly look for the default forum or use a fallback.
+        const generalForum = forums.find(f => f.name === 'General Wellness') || forums[0];
         if (generalForum) {
             finalForumId = generalForum.id;
         } else {
              toast({
                 variant: 'destructive',
-                title: 'Default Forum Not Found',
-                description: 'Please select a forum to post in.',
+                title: 'No Forums Available',
+                description: 'Cannot create a post because no forums exist.',
             });
             return;
         }
