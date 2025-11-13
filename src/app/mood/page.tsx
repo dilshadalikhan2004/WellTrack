@@ -5,7 +5,7 @@ import { MoodHeatmap } from '@/components/mood/mood-heatmap';
 import { MoodTrendChart } from '@/components/mood/mood-trend-chart';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, type Timestamp }m 'firebase/firestore';
+import { collection, type Timestamp } from 'firebase/firestore';
 
 export type MoodLogData = {
   id: string;
