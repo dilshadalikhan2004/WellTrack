@@ -1,0 +1,947 @@
+
+{
+  "entities": {
+    "ForumCategory": {
+      "title": "ForumCategory",
+      "type": "object",
+      "description": "Represents a single forum category option for AI classification.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique ID of the forum."
+        },
+        "name": {
+          "type": "string",
+          "description": "The display name of the forum."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of what the forum is about."
+        }
+      },
+      "required": ["id", "name", "description"]
+    },
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile within the WellTrack application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "username": {
+          "type": "string",
+          "description": "User's chosen username."
+        },
+        "profilePictureUrl": {
+          "type": "string",
+          "description": "URL to the user's profile picture.",
+          "format": "uri"
+        },
+        "themePreference": {
+          "type": "string",
+          "description": "User's preferred theme (e.g., Light, Dark)."
+        },
+        "settings": {
+          "type": "string",
+          "description": "json string containing customizable settings",
+          "format": "json"
+        },
+        "age": {
+            "type": "number",
+            "description": "User's age."
+        },
+        "sex": {
+            "type": "string",
+            "description": "User's sex.",
+            "enum": ["Male", "Female", "Other", "Prefer not to say"]
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "username"
+      ]
+    },
+    "Habit": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Habit",
+      "type": "object",
+      "description": "Represents a habit tracked by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Habit entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Habit)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the habit (e.g., 'Drink 8 glasses of water')."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the habit (e.g., 'Physical Health', 'Mental Wellness')."
+        },
+        "frequency": {
+          "type": "string",
+          "description": "Frequency of the habit (e.g., 'Daily', 'Weekly')."
+        },
+        "goal": {
+          "type": "string",
+          "description": "The overall goal of the habit."
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "name",
+        "category",
+        "frequency"
+      ]
+    },
+    "HabitLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "HabitLog",
+      "type": "object",
+      "description": "Represents a single instance of a habit being logged.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the HabitLog entity."
+        },
+        "habitId": {
+          "type": "string",
+          "description": "Reference to Habit. (Relationship: Habit 1:N HabitLog)"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the habit was logged.",
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes about the habit log."
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "URL to a photo associated with the habit log.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "habitId",
+        "timestamp"
+      ]
+    },
+    "MoodLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MoodLog",
+      "type": "object",
+      "description": "Represents a user's mood log entry.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MoodLog entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N MoodLog)"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the mood was logged.",
+          "format": "date-time"
+        },
+        "moodRating": {
+          "type": "number",
+          "description": "Mood rating on a scale (e.g., 1-10)."
+        },
+        "emotions": {
+          "type": "string",
+          "description": "JSON string of emotions the user is feeling.",
+          "format": "json"
+        },
+        "trigger": {
+          "type": "string",
+          "description": "Trigger for the mood."
+        },
+        "journalEntryId": {
+          "type": "string",
+          "description": "Reference to JournalEntry. (Relationship: JournalEntry 1:1 MoodLog)"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "timestamp",
+        "moodRating"
+      ]
+    },
+    "JournalEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "JournalEntry",
+      "type": "object",
+      "description": "Represents a journal entry.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the JournalEntry entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N JournalEntry)"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the journal entry was created.",
+          "format": "date-time"
+        },
+        "text": {
+          "type": "string",
+          "description": "Text content of the journal entry."
+        },
+        "voiceNoteUrl": {
+          "type": "string",
+          "description": "URL to a voice note associated with the entry.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "timestamp",
+        "text"
+      ]
+    },
+    "Routine": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Routine",
+      "type": "object",
+      "description": "Represents a user's daily routine.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Routine entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Routine)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the routine (e.g., 'Regular Day', 'Exam Week')."
+        },
+        "segments": {
+          "type": "string",
+          "description": "JSON string representing the routine's time segments (Morning, Afternoon, Evening, Night).",
+          "format": "json"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "name"
+      ]
+    },
+    "Goal": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Goal",
+      "type": "object",
+      "description": "Represents a SMART goal set by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Goal entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Goal)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the goal."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the goal (e.g., 'Academic', 'Fitness')."
+        },
+        "timeframe": {
+          "type": "string",
+          "description": "Timeframe for the goal (e.g., 'Daily', 'Weekly')."
+        },
+        "milestones": {
+          "type": "string",
+          "description": "json string of all milestones for the current goal",
+          "format": "json"
+        },
+        "startDate": {
+          "type": "string",
+          "description": "start date of goal",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "end date of goal",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "name",
+        "category",
+        "timeframe"
+      ]
+    },
+    "Notification": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Notification",
+      "type": "object",
+      "description": "Represents a notification for the user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Notification entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Notification)"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the notification was created.",
+          "format": "date-time"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message content of the notification."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of notification (e.g., 'Reminder', 'Achievement')."
+        },
+        "isRead": {
+          "type": "boolean",
+          "description": "Whether the notification has been read."
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "timestamp",
+        "message",
+        "type"
+      ]
+    },
+    "CommunityForum": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CommunityForum",
+      "type": "object",
+      "description": "Represents a community forum.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CommunityForum entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the forum (e.g., 'Anxiety Support')."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the forum."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description"
+      ]
+    },
+    "ForumPost": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ForumPost",
+      "type": "object",
+      "description": "Represents a post within a community forum.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ForumPost entity."
+        },
+        "communityForumId": {
+          "type": "string",
+          "description": "Reference to CommunityForum. (Relationship: CommunityForum 1:N ForumPost)"
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N ForumPost)"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the post was created.",
+          "format": "date-time"
+        },
+        "content": {
+          "type": "string",
+          "description": "Content of the forum post."
+        }
+      },
+      "required": [
+        "id",
+        "communityForumId",
+        "userProfileId",
+        "timestamp",
+        "content"
+      ]
+    },
+     "ForumPostReply": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ForumPostReply",
+      "type": "object",
+      "description": "Represents a reply to a forum post.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the reply."
+        },
+        "postId": {
+          "type": "string",
+          "description": "Reference to the parent ForumPost."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to the UserProfile of the author."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the reply was created.",
+          "format": "date-time"
+        },
+        "content": {
+          "type": "string",
+          "description": "The text content of the reply."
+        }
+      },
+      "required": ["id", "postId", "userProfileId", "timestamp", "content"]
+    },
+    "Gamification": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Gamification",
+      "type": "object",
+      "description": "Gamification for app",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Gamification entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:1 Gamification)"
+        },
+        "points": {
+          "type": "number",
+          "description": "Total points earned by the user."
+        },
+        "level": {
+          "type": "number",
+          "description": "Current level of the user."
+        },
+        "badges": {
+          "type": "string",
+          "description": "json string of user earned badges",
+          "format": "json"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId"
+      ]
+    },
+    "StressLevel": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "StressLevel",
+      "type": "object",
+      "description": "stress tracker",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the StressLevel entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N StressLevel)"
+        },
+        "level": {
+          "type": "number",
+          "description": "Current level of user's stress (1 -10)"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the journal entry was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId"
+      ]
+    },
+    "CounselorChat": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CounselorChat",
+      "type": "object",
+      "description": "Represents a message in the AI counselor chat.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the chat message."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of the message.",
+          "format": "date-time"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user", "model"],
+          "description": "The author of the message."
+        },
+        "content": {
+          "type": "string",
+          "description": "The text content of the message."
+        }
+      },
+      "required": ["id", "userProfileId", "timestamp", "role", "content"]
+    },
+    "FinancialTransaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FinancialTransaction",
+      "type": "object",
+      "description": "Represents a single financial transaction (income or expense).",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the transaction." },
+        "userProfileId": { "type": "string", "description": "Reference to UserProfile." },
+        "type": { "type": "string", "enum": ["income", "expense"], "description": "Type of transaction." },
+        "category": { "type": "string", "description": "Category of the transaction (e.g., Food, Transport, Salary)." },
+        "amount": { "type": "number", "description": "The transaction amount." },
+        "description": { "type": "string", "description": "A brief description of the transaction." },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Timestamp of the transaction." },
+        "isArchived": { "type": "boolean", "description": "Flag to hide transaction from main view after reset." }
+      },
+      "required": ["id", "userProfileId", "type", "category", "amount", "timestamp"]
+    },
+    "FinancialAnxietyLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FinancialAnxietyLog",
+      "type": "object",
+      "description": "Represents a log of the user's financial anxiety level.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the log entry." },
+        "userProfileId": { "type": "string", "description": "Reference to UserProfile." },
+        "level": { "type": "number", "description": "Anxiety level from 1 (low) to 5 (high)." },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Timestamp of the log." }
+      },
+      "required": ["id", "userProfileId", "level", "timestamp"]
+    },
+    "EmergencyFund": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "EmergencyFund",
+        "type": "object",
+        "description": "Represents the user's emergency fund goal and progress.",
+        "properties": {
+            "id": { "type": "string", "description": "Unique identifier, typically the user's ID." },
+            "userProfileId": { "type": "string", "description": "Reference to UserProfile." },
+            "goal": { "type": "number", "description": "The target amount for the emergency fund." },
+            "currentAmount": { "type": "number", "description": "The current amount saved." }
+        },
+        "required": ["id", "userProfileId", "goal", "currentAmount"]
+    },
+    "Resource": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Resource",
+      "type": "object",
+      "description": "Represents a piece of content in the Mental Health Library.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the resource." },
+        "title": { "type": "string", "description": "Title of the resource." },
+        "description": { "type": "string", "description": "A brief summary of the resource." },
+        "type": { "type": "string", "enum": ["course", "video", "podcast", "book", "research", "talk", "infographic"], "description": "The type of the resource." },
+        "category": { "type": "string", "description": "The mental health category (e.g., Anxiety, Depression, Stress)." },
+        "imageUrl": { "type": "string", "format": "uri", "description": "URL for a thumbnail or cover image." },
+        "contentUrl": { "type": "string", "format": "uri", "description": "URL to the actual content (video, article, etc.)." },
+        "duration": { "type": "number", "description": "Estimated time to consume in minutes." }
+      },
+      "required": ["id", "title", "type", "category", "imageUrl"]
+    },
+    "EmergencyContact": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EmergencyContact",
+      "type": "object",
+      "description": "Represents a single emergency contact for a user.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the contact." },
+        "userProfileId": { "type": "string", "description": "Reference to the user who owns this contact." },
+        "name": { "type": "string", "description": "Name of the contact person." },
+        "relationship": { "type": "string", "description": "Relationship to the user (e.g., Friend, Parent, Therapist)." },
+        "phone": { "type": "string", "description": "Phone number of the contact." }
+      },
+      "required": ["id", "userProfileId", "name", "relationship", "phone"]
+    },
+    "CopingStrategy": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CopingStrategy",
+      "type": "object",
+      "description": "Represents a single coping strategy defined by the user.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the strategy." },
+        "userProfileId": { "type": "string", "description": "Reference to the user who owns this strategy." },
+        "text": { "type": "string", "description": "The text describing the coping strategy." }
+      },
+      "required": ["id", "userProfileId", "text"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/user_profile",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information. Accessible only to the authenticated user. Includes the user's email, username, and other profile details.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/habits/{habitId}",
+        "definition": {
+          "entityName": "Habit",
+          "schema": {
+            "$ref": "#/backend/entities/Habit"
+          },
+          "description": "Stores habits tracked by the user. Accessible only to the authenticated user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "habitId",
+              "description": "The unique identifier for the habit."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/habit_logs/{habitLogId}",
+        "definition": {
+          "entityName": "HabitLog",
+          "schema": {
+            "$ref": "#/backend/entities/HabitLog"
+          },
+          "description": "Stores log entries for each habit tracked by the user. Accessible only to the authenticated user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "habitLogId",
+              "description": "The unique identifier for the habit log entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/mood_logs/{moodLogId}",
+        "definition": {
+          "entityName": "MoodLog",
+          "schema": {
+            "$ref": "#/backend/entities/MoodLog"
+          },
+          "description": "Stores mood log entries for the user. Accessible only to the authenticated user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "moodLogId",
+              "description": "The unique identifier for the mood log entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/journal_entries/{journalEntryId}",
+        "definition": {
+          "entityName": "JournalEntry",
+          "schema": {
+            "$ref": "#/backend/entities/JournalEntry"
+          },
+          "description": "Stores journal entries for the user. Accessible only to the authenticated user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "journalEntryId",
+              "description": "The unique identifier for the journal entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/counselor_chats/{messageId}",
+        "definition": {
+          "entityName": "CounselorChat",
+          "schema": { "$ref": "#/backend/entities/CounselorChat" },
+          "description": "Stores AI counselor chat messages. Accessible only to the authenticated user.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier for the user." },
+            { "name": "messageId", "description": "The unique identifier for the chat message." }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/routines/{routineId}",
+        "definition": {
+          "entityName": "Routine",
+          "schema": {
+            "$ref": "#/backend/entities/Routine"
+          },
+          "description": "Stores routines created by the user. Accessible only to the authenticated user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "routineId",
+              "description": "The unique identifier for the routine."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/goals/{goalId}",
+        "definition": {
+          "entityName": "Goal",
+          "schema": {
+            "$ref": "#/backend/entities/Goal"
+          },
+          "description": "Stores goals set by the user. Accessible only to the authenticated user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "goalId",
+              "description": "The unique identifier for the goal."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/notifications/{notificationId}",
+        "definition": {
+          "entityName": "Notification",
+          "schema": {
+            "$ref": "#/backend/entities/Notification"
+          },
+          "description": "Stores notifications for the user. Accessible only to the authenticated user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "notificationId",
+              "description": "The unique identifier for the notification."
+            }
+          ]
+        }
+      },
+       {
+        "path": "/users/{userId}/financial_transactions/{transactionId}",
+        "definition": {
+          "entityName": "FinancialTransaction",
+          "schema": { "$ref": "#/backend/entities/FinancialTransaction" },
+          "description": "Stores individual financial transactions for a user.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier for the user." },
+            { "name": "transactionId", "description": "The unique identifier for the transaction." }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/financial_anxiety_logs/{logId}",
+        "definition": {
+          "entityName": "FinancialAnxietyLog",
+          "schema": { "$ref": "#/backend/entities/FinancialAnxietyLog" },
+          "description": "Stores financial anxiety logs for a user.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier for the user." },
+            { "name": "logId", "description": "The unique identifier for the anxiety log." }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/emergency_fund",
+        "definition": {
+          "entityName": "EmergencyFund",
+          "schema": { "$ref": "#/backend/entities/EmergencyFund" },
+          "description": "Stores the user's emergency fund status.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier for the user." }
+          ]
+        }
+      },
+      {
+        "path": "/community_forums/{communityForumId}",
+        "definition": {
+          "entityName": "CommunityForum",
+          "schema": {
+            "$ref": "#/backend/entities/CommunityForum"
+          },
+          "description": "Stores community forum data. Accessible to all users for reading, but write access is restricted based on roles.",
+          "params": [
+            {
+              "name": "communityForumId",
+              "description": "The unique identifier for the community forum."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/forum_posts/{forumPostId}",
+        "definition": {
+          "entityName": "ForumPost",
+          "schema": {
+            "$ref": "#/backend/entities/ForumPost"
+          },
+          "description": "Stores forum posts. Includes the userProfileId of the author for authorization. Read access may be public, while write access is controlled.",
+          "params": [
+            {
+              "name": "forumPostId",
+              "description": "The unique identifier for the forum post."
+            }
+          ]
+        }
+      },
+       {
+        "path": "/forum_posts/{forumPostId}/replies/{replyId}",
+        "definition": {
+          "entityName": "ForumPostReply",
+          "schema": { "$ref": "#/backend/entities/ForumPostReply" },
+          "description": "Stores replies for a specific forum post. Read access is public, write is for authenticated users.",
+          "params": [
+            { "name": "forumPostId", "description": "The unique identifier for the forum post." },
+            { "name": "replyId", "description": "The unique identifier for the reply." }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/gamification",
+        "definition": {
+          "entityName": "Gamification",
+          "schema": {
+            "$ref": "#/backend/entities/Gamification"
+          },
+          "description": "Gamification stats such as points, current level, and earned badges. Accessible only to the authenticated user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/stress_levels/{stressLevelId}",
+        "definition": {
+          "entityName": "StressLevel",
+          "schema": {
+            "$ref": "#/backend/entities/StressLevel"
+          },
+          "description": "Tracks user's stress levels over time. Accessible only to the authenticated user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "stressLevelId",
+              "description": "The unique identifier for the stress level entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/library/{resourceId}",
+        "definition": {
+          "entityName": "Resource",
+          "schema": { "$ref": "#/backend/entities/Resource" },
+          "description": "Stores public mental health library resources. Accessible to all users for reading.",
+          "params": [
+            { "name": "resourceId", "description": "The unique identifier for the library resource." }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/emergency_contacts/{contactId}",
+        "definition": {
+          "entityName": "EmergencyContact",
+          "schema": { "$ref": "#/backend/entities/EmergencyContact" },
+          "description": "Stores the user's personal emergency contacts. Only accessible to the user.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier for the user." },
+            { "name": "contactId", "description": "The unique identifier for the emergency contact." }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/coping_strategies/{strategyId}",
+        "definition": {
+          "entityName": "CopingStrategy",
+          "schema": { "$ref": "#/backend/entities/CopingStrategy" },
+          "description": "Stores the user's personal coping strategies. Only accessible to the user.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier for the user." },
+            { "name": "strategyId", "description": "The unique identifier for the coping strategy." }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, adhering to the principles of Authorization Independence and Structural Segregation. User-specific data is stored under the `/users/{userId}` path, ensuring that only the authenticated user can access their data. Each user has their own collections for habits, mood logs, journal entries, routines, goals, stress levels, notifications, and safety plan data (contacts and strategies). Financial data is also stored under the user's private path. \n\nCommunity forum data, which requires different access controls, is stored separately under `/community_forums` and `/forum_posts`, allowing for public read access while restricting write access to authorized users.\n\n The Mental Health Library content is stored in a public `/library` collection, as it is meant to be accessible by all authenticated users.\n\n**Authorization Independence:** Achieved by structuring data to avoid `get()` calls in security rules. User-owned data is directly nested under the `/users/{userId}` path.  For the community forum, the `ForumPost` includes the `userProfileId` to check ownership without needing to retrieve the user's profile. This prevents hierarchical authorization dependencies. \n\n**QAPs (Rules are not Filters):** Secure `list` operations are supported via structural segregation. The `/users/{userId}` collections allow listing only data owned by a specific user.  Public data (forums, library) are separated from private user data."
+  }
+}

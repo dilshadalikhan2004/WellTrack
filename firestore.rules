@@ -1,0 +1,105 @@
+
+/**
+ * @fileoverview Firestore Security Rules for WellTrack application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for personal data while allowing public read access to community forum data.
+ * User-specific data (habits, mood logs, journal entries, etc.) is only accessible to the authenticated user.
+ * Community forum data is publicly readable, but write access to forums and posts is restricted.
+ *
+ * Data Structure:
+ * - /users/{userId}/**: All user-specific data.
+ * - /community_forums/{communityForumId}: Community forum metadata.
+ * - /forum_posts/{forumPostId}: Individual forum posts.
+ * - /forum_posts/{forumPostId}/replies/{replyId}: Replies to a specific post.
+ * - /library/{resourceId}: Publicly accessible mental health resources.
+ *
+ * Key Security Decisions:
+ * - User data is strictly private.
+ * - Community forum data is publicly readable.
+ * - Listing of user documents in `/users/{userId}` is allowed only for the owner.
+ * - No complex schema validation is enforced during prototyping.
+ *
+ * Denormalization for Authorization:
+ * - Forum posts and replies include `userProfileId` to check ownership without additional reads.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Checks if the request is made by an authenticated user.
+     * @principle Requires authentication for most operations.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user ID matches the provided user ID.
+     * @principle Enforces document ownership for user-specific data.
+     * @param {string} userId The user ID to compare against the authenticated user's ID.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Rule for all documents within a user's private space.
+     * @path /users/{userId}/{document=**}
+     * @allow (read, write) Only the user who owns this data can read or write it.
+     */
+    match /users/{userId}/{document=**} {
+      allow read, write: if isOwner(userId);
+    }
+    
+    /**
+     * @description Rule for /community_forums/{communityForumId} collection.
+     * @path /community_forums/{communityForumId}
+     * @allow (get, list) Any user can read community forum data.
+     * @deny (create, update, delete) Write access is not allowed in this prototype phase.
+     */
+    match /community_forums/{communityForumId} {
+      allow get, list: if true;
+      allow create, update, delete: if false; // Only admins should write.
+    }
+
+    /**
+     * @description Rule for /forum_posts/{forumPostId} collection.
+     * @path /forum_posts/{forumPostId}
+     * @allow (get, list) Any user can read forum posts.
+     * @allow (create) Any authenticated user can create a post, ensuring they are the author.
+     * @allow (update, delete) Only the author of the post can update or delete it.
+     */
+    match /forum_posts/{forumPostId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.userProfileId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userProfileId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userProfileId == request.auth.uid;
+
+      /**
+       * @description Rule for the `replies` sub-collection within a forum post.
+       * @path /forum_posts/{forumPostId}/replies/{replyId}
+       * @allow (list, get) Any user can read replies.
+       * @allow (create) Any authenticated user can create a reply, ensuring they are the author.
+       * @allow (update, delete) Only the author of the reply can update or delete it.
+       */
+      match /replies/{replyId} {
+        allow list, get: if true;
+        allow create: if isSignedIn() && request.resource.data.userProfileId == request.auth.uid;
+        allow update, delete: if isSignedIn() && resource.data.userProfileId == request.auth.uid;
+      }
+    }
+
+    /**
+     * @description Rule for /library/{resourceId} collection.
+     * @path /library/{resourceId}
+     * @allow (get, list) Any authenticated user can read library resources.
+     * @deny (create, update, delete) Write access is restricted.
+     */
+    match /library/{resourceId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false; // Only admins should write.
+    }
+  }
+}
