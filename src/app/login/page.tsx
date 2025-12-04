@@ -11,15 +11,18 @@ import { useToast } from '@/hooks/use-toast';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
   type AuthError,
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('login');
   const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -76,15 +79,55 @@ export default function LoginPage() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({
+        variant: 'destructive',
+        title: 'Email Required',
+        description: 'Please enter your email address first.',
+      });
+      return;
+    }
+    
+    setResetLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast({
+        title: 'Reset Email Sent',
+        description: 'Check your email for password reset instructions.',
+      });
+    } catch (error) {
+      handleAuthError(error as AuthError);
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    setEmail('');
+    setPassword('');
+  };
+
+  useEffect(() => {
+    // Clear form when component mounts
+    setEmail('');
+    setPassword('');
+  }, []);
+
+  useEffect(() => {
+    setActiveTab('login');
+  }, []);
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/40">
-      <Tabs defaultValue="login" className="w-[400px]">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-[400px]">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Login</TabsTrigger>
           <TabsTrigger value="signup">Sign Up</TabsTrigger>
         </TabsList>
         <TabsContent value="login">
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleLogin} autoComplete="off">
             <Card>
               <CardHeader>
                 <CardTitle>Login</CardTitle>
@@ -93,16 +136,19 @@ export default function LoginPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="login-email">Email</Label>
-                  <Input id="login-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                  <Input id="login-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="nope" name="email-new" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="login-password">Password</Label>
-                  <Input id="login-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+                  <Input id="login-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" name="password-new" />
                 </div>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="flex flex-col space-y-2">
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Logging in...' : 'Login'}
+                </Button>
+                <Button type="button" variant="ghost" className="w-full" onClick={handleForgotPassword} disabled={resetLoading}>
+                  {resetLoading ? 'Sending...' : 'Forgot Password?'}
                 </Button>
               </CardFooter>
             </Card>
@@ -118,11 +164,11 @@ export default function LoginPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
-                  <Input id="signup-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
+                  <Input id="signup-email" type="email" placeholder="m@example.com" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="off" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
-                  <Input id="signup-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} />
+                  <Input id="signup-password" type="password" required value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" />
                 </div>
               </CardContent>
               <CardFooter>

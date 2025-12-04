@@ -36,15 +36,25 @@ export function AiStressPredictor() {
   const { data: scheduleItems } = useCollection<ScheduleItem>(scheduleCollectionRef);
 
   const schedule = useMemo(() => {
-    const assignments = scheduleItems?.filter(item => item.type === 'assignment' || item.type === 'exam').map(item => ({
-      name: item.title,
-      dueDate: new Date(item.date).toISOString()
-    })) || [];
+    const assignments = scheduleItems?.filter(item => item.type === 'assignment' || item.type === 'exam')
+      .map(item => {
+        const date = item.date instanceof Date ? item.date : new Date(item.date);
+        return isNaN(date.getTime()) ? null : {
+          name: item.title,
+          dueDate: date.toISOString()
+        };
+      })
+      .filter(Boolean) || [];
     
-    const events = scheduleItems?.filter(item => item.type === 'event').map(item => ({
-      name: item.title,
-      date: new Date(item.date).toISOString()
-    })) || [];
+    const events = scheduleItems?.filter(item => item.type === 'event')
+      .map(item => {
+        const date = item.date instanceof Date ? item.date : new Date(item.date);
+        return isNaN(date.getTime()) ? null : {
+          name: item.title,
+          date: date.toISOString()
+        };
+      })
+      .filter(Boolean) || [];
     
     return {
       assignments,
@@ -72,6 +82,19 @@ export function AiStressPredictor() {
       return;
     }
 
+    console.log('Raw schedule items:', scheduleItems);
+    console.log('Processed schedule data:', schedule);
+    console.log('Past stress patterns:', pastStressPatterns);
+
+    if (!scheduleItems || scheduleItems.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'No Schedule Data',
+        description: 'Please add some schedule items first to get predictions.',
+      });
+      return;
+    }
+
     setIsLoading(true);
     setPredictions(null);
     try {
@@ -79,13 +102,72 @@ export function AiStressPredictor() {
         schedule: JSON.stringify(schedule),
         pastStressPatterns: JSON.stringify(pastStressPatterns),
       });
-      setPredictions(JSON.parse(result.predictedStressPeriods));
+      
+      console.log('AI Response:', result);
+      
+      if (!result.predictedStressPeriods) {
+        throw new Error('No predictions returned from AI');
+      }
+      
+      const parsedPredictions = JSON.parse(result.predictedStressPeriods);
+      console.log('Parsed predictions:', parsedPredictions);
+      
+      if (!Array.isArray(parsedPredictions) || parsedPredictions.length === 0) {
+        setPredictions([{
+          date: new Date().toISOString(),
+          reason: 'No high-stress periods detected based on your current schedule and mood patterns.'
+        }]);
+      } else {
+        setPredictions(parsedPredictions);
+      }
     } catch (error) {
       console.error('Error predicting stress periods:', error);
+      
+      // Fallback: Generate basic predictions based on schedule
+      const fallbackPredictions = [];
+      
+      // Check for multiple assignments/exams on same day
+      const dateMap = new Map();
+      schedule.assignments.forEach(item => {
+        const date = new Date(item.dueDate).toDateString();
+        dateMap.set(date, (dateMap.get(date) || 0) + 1);
+      });
+      
+      for (const [date, count] of dateMap.entries()) {
+        if (count > 1) {
+          fallbackPredictions.push({
+            date: new Date(date).toISOString(),
+            reason: `Multiple assignments/exams due (${count} items) - consider spreading workload`
+          });
+        }
+      }
+      
+      // Check for upcoming deadlines
+      const now = new Date();
+      const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      
+      schedule.assignments.forEach(item => {
+        const dueDate = new Date(item.dueDate);
+        if (dueDate > now && dueDate <= nextWeek) {
+          fallbackPredictions.push({
+            date: item.dueDate,
+            reason: `Upcoming deadline: ${item.name} - start preparing early`
+          });
+        }
+      });
+      
+      if (fallbackPredictions.length === 0) {
+        fallbackPredictions.push({
+          date: new Date().toISOString(),
+          reason: 'Your schedule looks manageable! Keep maintaining good study habits.'
+        });
+      }
+      
+      setPredictions(fallbackPredictions.slice(0, 3)); // Limit to 3 predictions
+      
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to predict stress periods. Please try again.',
+        title: 'Basic Analysis Complete',
+        description: 'Generated predictions based on your schedule (AI service unavailable).',
       });
     } finally {
       setIsLoading(false);
@@ -122,7 +204,7 @@ export function AiStressPredictor() {
                     <AlertTriangle className="w-5 h-5 mr-3 mt-1 text-amber-600 dark:text-amber-500" />
                     <div>
                         <p className="font-semibold">
-                            Around {new Date(prediction.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}
+                            {prediction.date ? `Around ${new Date(prediction.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}` : 'General Insight'}
                         </p>
                         <p className="text-sm text-muted-foreground">{prediction.reason}</p>
                     </div>
@@ -137,6 +219,9 @@ export function AiStressPredictor() {
           <Sparkles className="w-8 h-8 mb-4 text-muted-foreground" />
           <p className="font-semibold">Ready for your forecast?</p>
           <p className="text-sm text-muted-foreground">Click the button to analyze your upcoming schedule.</p>
+          {(!scheduleItems || scheduleItems.length === 0) && (
+            <p className="text-xs text-amber-600 mt-2">Note: Add some schedule items to get better predictions.</p>
+          )}
         </div>
       )}
     </div>
