@@ -18,7 +18,7 @@ const MessageSchema = z.object({
 
 const PersonalCounselorInputSchema = z.object({
   history: z.array(MessageSchema).describe('The conversation history between the user and the AI.'),
-  message: z.string().describe("The user's latest message."),
+  message: z.string().min(1).max(1000).describe("The user's latest message."),
 });
 export type PersonalCounselorInput = z.infer<typeof PersonalCounselorInputSchema>;
 
