@@ -15,11 +15,11 @@ export type User = {
 };
 
 export type UserProfile = {
-    id: string;
-    username: string;
-    email: string;
-    age?: number;
-    sex?: string;
+  id: string;
+  username: string;
+  email: string;
+  age?: number;
+  sex?: string;
 }
 
 export type Habit = {
@@ -31,11 +31,11 @@ export type Habit = {
 };
 
 export type HabitLog = {
-    id: string;
-    habitId: string;
-    timestamp: Timestamp;
-    notes?: string;
-    userProfileId: string;
+  id: string;
+  habitId: string;
+  timestamp: Timestamp;
+  notes?: string;
+  userProfileId: string;
 }
 
 export type MoodOption = {
@@ -54,9 +54,9 @@ export type MoodLog = {
 };
 
 export type SubTask = {
-    id: string;
-    text: string;
-    completed: boolean;
+  id: string;
+  text: string;
+  completed: boolean;
 };
 
 export type Goal = {
@@ -70,7 +70,7 @@ export type Goal = {
 };
 
 export type Badge = {
-  id:string;
+  id: string;
   name: string;
   description: string;
   icon: React.ElementType;
@@ -85,20 +85,20 @@ export type AnalyzeJournalSentimentOutput = {
 
 // Represents the data fetched from Firestore, including ID
 export type JournalEntry = {
-    id: string;
-    content: string;
-    createdAt: Timestamp | any; // Firestore timestamp
-    sentiment?: AnalyzeJournalSentimentOutput | null;
-    userProfileId: string;
+  id: string;
+  content: string;
+  createdAt: Timestamp | any; // Firestore timestamp
+  sentiment?: AnalyzeJournalSentimentOutput | null;
+  userProfileId: string;
 };
 
 // Represents the data structure for creating a new entry in Firestore
 export type JournalEntryData = {
-    id?: string; // id is optional on write
-    content: string;
-    createdAt: any; // Can be serverTimestamp()
-    sentiment?: AnalyzeJournalSentimentOutput | null;
-    userProfileId: string;
+  id?: string; // id is optional on write
+  content: string;
+  createdAt: any; // Can be serverTimestamp()
+  sentiment?: AnalyzeJournalSentimentOutput | null;
+  userProfileId: string;
 }
 
 export type ChatMessage = {
@@ -110,36 +110,36 @@ export type ChatMessage = {
 };
 
 export type Gamification = {
-    id: string;
-    userProfileId: string;
-    points: number;
-    level: number;
-    badges: string[]; // Array of badge IDs
+  id: string;
+  userProfileId: string;
+  points: number;
+  level: number;
+  badges: string[]; // Array of badge IDs
 }
 
 export type FinancialTransaction = {
-    id: string;
-    userProfileId: string;
-    type: 'income' | 'expense';
-    category: string;
-    amount: number;
-    description: string;
-    timestamp: Timestamp | any;
-    isArchived?: boolean;
+  id: string;
+  userProfileId: string;
+  type: 'income' | 'expense';
+  category: string;
+  amount: number;
+  description: string;
+  timestamp: Timestamp | any;
+  isArchived?: boolean;
 }
 
 export type FinancialAnxietyLog = {
-    id: string;
-    userProfileId: string;
-    level: number; // 1 (low) to 5 (high)
-    timestamp: Timestamp;
+  id: string;
+  userProfileId: string;
+  level: number; // 1 (low) to 5 (high)
+  timestamp: Timestamp;
 }
 
 export type EmergencyFund = {
-    id: string; // Should be user's UID
-    userProfileId: string;
-    goal: number;
-    currentAmount: number;
+  id: string; // Should be user's UID
+  userProfileId: string;
+  goal: number;
+  currentAmount: number;
 }
 
 export type GenerateFinancialTipsOutput = {
@@ -148,28 +148,28 @@ export type GenerateFinancialTipsOutput = {
 };
 
 export type Resource = {
-    id: string;
-    title: string;
-    description: string;
-    type: 'infographic' | 'video' | 'podcast' | 'course' | 'talk' | 'book' | 'research';
-    category: string;
-    imageUrl: string;
-    contentUrl?: string;
-    duration?: number; // in minutes
+  id: string;
+  title: string;
+  description: string;
+  type: 'infographic' | 'video' | 'podcast' | 'course' | 'talk' | 'book' | 'research';
+  category: string;
+  imageUrl: string;
+  contentUrl?: string;
+  duration?: number; // in minutes
 }
 
 export type EmergencyContact = {
-    id: string;
-    userProfileId: string;
-    name: string;
-    relationship: string;
-    phone: string;
+  id: string;
+  userProfileId: string;
+  name: string;
+  relationship: string;
+  phone: string;
 };
 
 export type CopingStrategy = {
-    id: string;
-    userProfileId: string;
-    text: string;
+  id: string;
+  userProfileId: string;
+  text: string;
 };
 
 
@@ -213,24 +213,24 @@ export type ForumPostReply = {
 
 // Firestore document structure for CommunityForum
 export type CommunityForumDoc = {
-    id: string;
-    name: string;
-    description: string;
-    iconName: string; // Storing icon name as a string
+  id: string;
+  name: string;
+  description: string;
+  iconName: string; // Storing icon name as a string
 }
 
 export type ForumCategory = {
-    id: string;
-    name: string;
-    description: string;
+  id: string;
+  name: string;
+  description: string;
 }
 
 export type ScheduleItem = {
-    id: string;
-    title: string;
-    date: Date;
-    type: 'assignment' | 'exam' | 'event';
-    description?: string;
-    userProfileId: string;
-    timestamp: Timestamp;
+  id: string;
+  title: string;
+  date: Date | Timestamp;
+  type: 'assignment' | 'exam' | 'event';
+  description?: string;
+  userProfileId: string;
+  timestamp: Timestamp;
 };

@@ -36,7 +36,7 @@ import { Separator } from '../ui/separator';
 import { useState } from 'react';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/mood', label: 'Mood', icon: Smile },
   { href: '/habits', label: 'Habits', icon: Flame },
   { href: '/goals', label: 'Goals', icon: Target },
@@ -58,17 +58,17 @@ function NavLink({
 }: (typeof navItems)[0] & { onClick: () => void }) {
   const pathname = usePathname();
   return (
-    <Link href={href} passHref>
-      <Button
-        variant={pathname === href ? 'secondary' : 'ghost'}
-        className="justify-start w-full"
-        as="a"
-        onClick={onClick}
-      >
+    <Button
+      variant={pathname === href ? 'secondary' : 'ghost'}
+      className="justify-start w-full"
+      asChild
+      onClick={onClick}
+    >
+      <Link href={href}>
         <Icon className="w-4 h-4 mr-2" />
         {label}
-      </Button>
-    </Link>
+      </Link>
+    </Button>
   );
 }
 
@@ -78,9 +78,15 @@ function NavContent({ onLinkClick }: { onLinkClick: () => void }) {
   const router = useRouter();
 
   const handleLogout = async () => {
-    if (auth) {
-      await signOut(auth);
-      router.push('/login');
+    try {
+      if (auth) {
+        await signOut(auth);
+      }
+      // AuthGate will handle the redirect to '/' since we are now unauthenticated
+      // But we can also force it for better UX responsiveness (immediate feedback)
+      router.push('/');
+    } catch (error) {
+      console.error("Error signing out:", error);
     }
     onLinkClick();
   };
@@ -108,17 +114,17 @@ function NavContent({ onLinkClick }: { onLinkClick: () => void }) {
               {user.email}
             </p>
           </div>
-          <Link href="/profile" passHref>
-            <Button
-              variant="ghost"
-              className="justify-start w-full"
-              as="a"
-              onClick={onLinkClick}
-            >
+          <Button
+            variant="ghost"
+            className="justify-start w-full"
+            asChild
+            onClick={onLinkClick}
+          >
+            <Link href="/profile">
               <Settings className="w-4 h-4 mr-2" />
               Profile & Settings
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <Button
             variant="ghost"
             className="justify-start w-full"
@@ -138,28 +144,28 @@ export function AppSidebar() {
   const handleLinkClick = () => setIsSheetOpen(false);
 
   return (
-      <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm">
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Menu className="w-6 h-6" />
-              <span className="sr-only">Toggle navigation menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="flex flex-col p-0 w-60">
-             <SheetHeader className="sr-only">
-              <SheetTitle>WellTrack</SheetTitle>
-              <SheetDescription>
-                Your personal wellness companion.
-              </SheetDescription>
-            </SheetHeader>
-            <NavContent onLinkClick={handleLinkClick} />
-          </SheetContent>
-        </Sheet>
-        <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-          <Logo />
-        </Link>
-        <div className="w-9 h-9" />
-      </header>
+    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm">
+      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <Menu className="w-6 h-6" />
+            <span className="sr-only">Toggle navigation menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="flex flex-col p-0 w-60">
+          <SheetHeader className="sr-only">
+            <SheetTitle>WellTrack</SheetTitle>
+            <SheetDescription>
+              Your personal wellness companion.
+            </SheetDescription>
+          </SheetHeader>
+          <NavContent onLinkClick={handleLinkClick} />
+        </SheetContent>
+      </Sheet>
+      <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
+        <Logo />
+      </Link>
+      <div className="w-9 h-9" />
+    </header>
   );
 }

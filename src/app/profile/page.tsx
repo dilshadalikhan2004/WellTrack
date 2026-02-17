@@ -16,6 +16,7 @@ import { Loader2, User as UserIcon, LogOut, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { compressImage } from '@/lib/image-utils';
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
@@ -70,21 +71,33 @@ export default function ProfilePage() {
       if (avatarFile) {
         setIsUploading(true);
         const storage = getStorage();
+        // Use original name but ensure it's unique or overwritten correctly. 
+        // Compressing might change extension? No, usually keeps it.
         const storageRef = ref(storage, `avatars/${user.uid}/${avatarFile.name}`);
+
         try {
-          const snapshot = await uploadBytes(storageRef, avatarFile);
+          console.log('Starting image compression...');
+          // Compress the image
+          const compressedFile = await compressImage(avatarFile, 0.7, 800);
+          console.log('Image compressed, starting upload...', compressedFile);
+
+          const snapshot = await uploadBytes(storageRef, compressedFile);
+          console.log('Upload complete, getting URL...');
           newPhotoURL = await getDownloadURL(snapshot.ref);
+          console.log('New photo URL:', newPhotoURL);
           setPhotoURL(newPhotoURL || '');
         } catch (error) {
           console.error('Error uploading avatar:', error);
           toast({
             variant: 'destructive',
             title: 'Upload Failed',
-            description: 'Could not upload your new avatar.',
+            description: 'Could not upload your new avatar. Check console for details.',
           });
-          // Do not return early, let finally block run
+          // Stop the profile update if image was the main intent? 
+          // Or just continue? Continuing is safer for text fields. 
+          // But let's unset the "uploading" state visually.
         } finally {
-            setIsUploading(false);
+          setIsUploading(false);
         }
       }
 
@@ -94,12 +107,12 @@ export default function ProfilePage() {
       });
 
       if (userProfileRef) {
-        await setDoc(userProfileRef, { 
-            username: displayName,
-            email: user.email,
-            profilePictureUrl: newPhotoURL,
-            age: age, 
-            sex: sex,
+        await setDoc(userProfileRef, {
+          username: displayName,
+          email: user.email,
+          profilePictureUrl: newPhotoURL,
+          age: age,
+          sex: sex,
         }, { merge: true });
       }
 
@@ -186,32 +199,32 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="age">Age</Label>
-                      <Input
-                        id="age"
-                        type="number"
-                        value={age}
-                        onChange={(e) => setAge(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
-                        placeholder="Your Age"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="sex">Sex</Label>
-                      <Select value={sex} onValueChange={setSex}>
-                        <SelectTrigger id="sex">
-                          <SelectValue placeholder="Select..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Male">Male</SelectItem>
-                          <SelectItem value="Female">Female</SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
-                          <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="age">Age</Label>
+                    <Input
+                      id="age"
+                      type="number"
+                      value={age}
+                      onChange={(e) => setAge(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+                      placeholder="Your Age"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sex">Sex</Label>
+                    <Select value={sex} onValueChange={setSex}>
+                      <SelectTrigger id="sex">
+                        <SelectValue placeholder="Select..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                        <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                
+
                 <div className="flex justify-end">
                   <Button type="submit" disabled={isUpdating}>
                     {(isUpdating || isUploading) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
@@ -239,4 +252,3 @@ export default function ProfilePage() {
   );
 }
 
-    

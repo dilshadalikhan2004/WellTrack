@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { Calendar, Plus, Trash2 } from 'lucide-react';
 import type { ScheduleItem } from '@/lib/types';
 
@@ -19,7 +19,7 @@ export default function SchedulePage() {
   const [type, setType] = useState<'assignment' | 'exam' | 'event'>('assignment');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { toast } = useToast();
   const { user } = useUser();
   const firestore = useFirestore();
@@ -50,7 +50,7 @@ export default function SchedulePage() {
       setDate('');
       setTime('');
       setDescription('');
-      
+
       toast({
         title: 'Schedule Item Added',
         description: 'Your schedule has been updated successfully.',
@@ -63,6 +63,23 @@ export default function SchedulePage() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!user || !firestore) return;
+    try {
+      await deleteDoc(doc(firestore, `users/${user.uid}/schedule`, id));
+      toast({
+        title: 'Item Deleted',
+        description: 'Schedule item has been removed.',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to delete item.',
+      });
     }
   };
 
@@ -161,13 +178,13 @@ export default function SchedulePage() {
                     return dateA.getTime() - dateB.getTime();
                   })
                   .map((item) => (
-                    <div key={item.id} className="p-3 border rounded-lg">
+                    <div key={item.id} className="p-3 border rounded-lg group">
                       <div className="flex justify-between items-start">
                         <div>
                           <h4 className="font-semibold">{item.title}</h4>
                           <p className="text-sm text-muted-foreground">
                             {item.date instanceof Date ? item.date.toLocaleDateString() : new Date(item.date.seconds * 1000).toLocaleDateString()}
-                            {item.date.toString().includes('T') && item.date instanceof Date && ` at ${item.date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`}
+                            {item.date.toString().includes('T') && item.date instanceof Date && ` at ${item.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
                           </p>
                           <span className="inline-block px-2 py-1 text-xs rounded-full bg-primary/10 text-primary">
                             {item.type}
@@ -176,6 +193,14 @@ export default function SchedulePage() {
                             <p className="text-sm mt-1">{item.description}</p>
                           )}
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(item.id)}
+                          className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   ))
